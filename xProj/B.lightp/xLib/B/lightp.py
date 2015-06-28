@@ -1394,7 +1394,7 @@ def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     else:
         return
 
-def exhB(instanceInit = [1, 1, 0, 1, 0, 0]):
+def exhB(instanceInit = 110100):
     global aStruc
     global aV
     global aCoordHash
@@ -1402,8 +1402,8 @@ def exhB(instanceInit = [1, 1, 0, 1, 0, 0]):
     thisCmd =  "B.lightp.exhB"
     sandbox = "B.lightp"
     ABOUT = """
-Example:        B.lightp.exhB [1, 1, 0, 1, 0, 0] (under python)
-        ../xBin/B.lightp.exhB [1, 1, 0, 1, 0, 0] (under bash)
+Example:        B.lightp.exhB 110100 (under python)
+        ../xBin/B.lightp.exhB 110100 (under bash)
 
 This command B.lightp.exhB takes a binary coordinate instanceInit of length L that defines the
 initial configuration of lights-out in the puzzle under the sandbox B.lightp.

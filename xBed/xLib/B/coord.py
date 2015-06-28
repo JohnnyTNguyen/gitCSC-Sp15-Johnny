@@ -1,10 +1,19 @@
 import random
 def neighborhood(coordPivot = [0, 1, 0, 1, 0, 1, 0]):
-    ABOUT = "\n".join(["This proc takes a binary coordinate such as 0101010",
-                       "(here of size L = 7) and returns a set of distance=1 neighborhood",
-                       "coordinates (aka as the Hamming distance of 1). The size of this set is L.",
-                       "See the example below."])
-    thisProc = "B_coord.neighborhood"
+    thisCmd = "B.coord.neighborhood"
+    ABOUT = "\n".join("This command {} takes a binary coordinate such as 0101010 (here of",
+                       "size L = 7) and returns a set of all ** adjacent coordinates **, i.e. the",
+                       "coordinates with the Hamming distance of 1 from the input coordinate.",
+                       "The size of this set is L.").format(thisCmd)
+                       
+    if bstrL == "?":
+        print("Valid query is '" + thisCmd + " ??'")
+        return
+                           
+    if bstrL == "??":
+        print ABOUT
+        return
+                       
     L = len(coordPivot)
     coordNeighbors = []
 
@@ -21,14 +30,16 @@ def neighborhood(coordPivot = [0, 1, 0, 1, 0, 1, 0]):
     return coordNeighbors
 
 def distance(bstrL = [0, 1, 0, 1], bstrR = [1, 0, 0, 1]):
-    thisProc = "B.coord.distance"
+    thisCmd = "B.coord.distance"
+    ABOUT = """This procedure takes two binary strings and returns
+        the value of the Hamming distance between the strings.
+        """
     if bstrL == "?":
-        print("Valid query is '" + thisProc + " ??'")
+        print("Valid query is '" + thisCmd + " ??'")
         return
 
     if bstrL == "??":
-        print("\n".join(["This procedure takes two binary strings and returns",
-                         "the value of the Hamming distance between the strings."]))
+        print ABOUT
         return
     
     L = len(bstrL)
