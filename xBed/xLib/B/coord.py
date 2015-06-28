@@ -6,11 +6,11 @@ def neighborhood(coordPivot = [0, 1, 0, 1, 0, 1, 0]):
                        "coordinates with the Hamming distance of 1 from the input coordinate.",
                        "The size of this set is L.").format(thisCmd)
                        
-    if bstrL == "?":
+    if coordPivot == "?":
         print("Valid query is '" + thisCmd + " ??'")
         return
                            
-    if bstrL == "??":
+    if coordPivot == "??":
         print ABOUT
         return
                        
@@ -55,36 +55,61 @@ def distance(bstrL = [0, 1, 0, 1], bstrR = [1, 0, 0, 1]):
     return dist    
 
 def from_int(val = 31, maxBits = 5):
+    thisCmd = "B.coord.from_int"
+    ABOUT = """This procedure takes an integer and the length of the binary string that
+        can represent this integer and returns a binary string that actually
+        represents this integer.
+        """
+    
+    if val == "?":
+        print("Valid query is '" + thisCmd + " ??'")
+        return
+
+    if val == "??":
+        print ABOUT
+        return
+    
     intMax = int(pow(2, maxBits)) - 1
     bstr = []
     if val > intMax:
-        print("\nERROR from $thisProc ...\
-          maxBits=$maxBits cannot represent an integer=$val \n")
+        print("\nERROR from {} ..."
+          "maxBits={} cannot represent an integer={} \n").format(thisCmd, maxBits, val)
     elif val < 0:
-        print("\nERROR from $thisProc ... negative input value, val = $val \n")
+        print("\nERROR from {} ... negative input value, val = {} \n").format(thisCmd, val)
     elif val > 0:
         nBits = int(log(val, 2.0))
         remainder = val
-        #print(str(int(nBits)))
         for i in range(int(nBits), -1, -1):
             base = pow(2, i)
             quotient = remainder/base
             remainder = remainder % int(base)
             bstr.append(quotient)
-   # print(str(bstr))
-#    else:
- #        bstr.append(0)
-    #print(str(bstr))
+
     numZeros = maxBits - len(bstr)
-    #print("maxBits: " + str(maxBits) + " len(str(bstr)): " + str(len(str(bstr))) + " numZeros: " + str(numZeros))
+
     zeros = []
     for i in range(numZeros):
         zeros.append(0)
-    #zeros.append(bstr)
-    #bstr = zeros
-#    print("bstr: " + str(bstr))
+
     return zeros + bstr
+
 def rand(L = 41, weightFactor = None):
+    thisCmd = "B.coord.rand"
+    ABOUT = """This proc takes an integer L, and optionally a weightFactor > 0 and <= 1.
+        By default, weightFactor = NA, and an unbiased binary coordinate of length L
+        is returned. For weightFactor=0.5, a biased random coordinate of length L
+        is returned: it will have  a random distribution of exactly L/2 'ones'
+        for L even and (L+1)/2 'ones' for L odd.
+        """
+    
+    if L == "?":
+        print("Valid query is '" + thisCmd + " ??'")
+        return
+
+    if L == "??":
+        print ABOUT
+        return
+    
     coord = []
     if weightFactor == None:
         for i in range(L):
@@ -92,4 +117,20 @@ def rand(L = 41, weightFactor = None):
     return coord
 
 def rank(bstr = [0, 0, 0, 1, 1, 0, 1]):
+    thisCmd = "B.coord.rank"
+    ABOUT = """This proc takes a binary coordinate as a string such as '010101' and
+        returns its weight number as the number of 'ones', which can also be
+        interpreted as the distance from '000000' or as 'the rank' of the
+        coordinate in the Hasse graph with respect to its 'bottom' coordinate
+        of all 'zeros'.
+        """
+    
+    if bstr == "?":
+        print("Valid query is '" + thisCmd + " ??'")
+        return
+
+    if bstr == "??":
+        print ABOUT
+        return
+
     return bstr.count(1)
