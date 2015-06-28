@@ -1,7 +1,6 @@
 #! /usr/bin/env python 
 import os
 import sys
-import time
 
 thisVersion = 20150529
 
@@ -11,14 +10,17 @@ thisDir = currDir
 execfile(os.path.dirname(currDir) + "/xLib/all_python.py")
 
 thisScript = os.path.basename(__file__)
-def P_lop_exhBT_Main(argv = sys.argv[1:], argc = len(sys.argv[1:])):
+
+def B_lightpP_Main(argv = sys.argv[1:], argc = len(sys.argv[1:])):
     thisProc = "B.lightp_Main"
     if argc == 0:
-        B.lightp.exhB('??')
+        B.lightp.info(1)
         return
 
     instanceDef = argv[0]
-    B.lightp.exhB(instanceDef)
+    args = argv[1:]
+    print "args = {}".format(args)
+    B.lightp.main(instanceDef, args)
 
     print "\n**completing {}**".format(thisProc)
     return
@@ -29,9 +31,9 @@ firstLine = "# {}\n# progName = {}\n# progArgs = {}\n# {} ".format("+"*76,
 
 print firstLine
 
-B_lightp_exhBT_Main()
+B_lightpP_Main()
 
-lastLine = "# {} ..completed {}\n# {}\n".format(
+lastLine = "# {} .. completed {}\n# {}\n".format(
         time.strftime("%a %b %d %H:%M:%S %Z %Y"), thisScript, "+"*76)
 
 print lastLine

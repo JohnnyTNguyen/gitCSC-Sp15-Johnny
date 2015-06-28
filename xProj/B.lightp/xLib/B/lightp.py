@@ -9,12 +9,10 @@ import random
 import util
 import core
 from config import *
-import getpass
+
 from math import log
-from pprint import pprint
 
 def main(instanceDef, args = []):
-    #-- begin ABOUT ---------------------------------------------------------------#
     thisCmd = "B.lightp.main"
     ABOUT = """
 Proc {} takes a variable number of arguments: 'instanceDef' as the
@@ -164,7 +162,6 @@ def info(isQuery=0, infoVariablesFile = "../xLib/B.lightp.info_variables.txt"):
             "valueTarget", "valueTol", "walkSegmLmt",
             "walkSegmCoef", "isSimple", "writeVar" ]
 
-    #TODO: SJDFASKDFJSDKFAJSDFKJ FIX THIS COMMENT
     print "\n".join([
         "USAGE:\n",
         "under TkCon shell (which has sourced ../xLib/all_python.py",
@@ -220,150 +217,43 @@ def info(isQuery=0, infoVariablesFile = "../xLib/B.lightp.info_variables.txt"):
 
     print "\n".join([
         "\nDETAILS:",
-        "This solver reads an instance of the 'linear ordering problem in a " +
-        "matrix format",
-        "and returns a column/row ordering that minimizes the negative sum " +
-        "of matrix",
-        "elements above the diagonal. The example below shows an instance " +
-        "of such a matrix",
-        "with sum = -8 under its 'natural order', and an instance under an " +
-        "optimal",
-        "permutation of 3,1,4,2 with a sum of -13. For this matrix, there " +
-        "are two more",
-        "such optimal permutations: 2,3,1,4 and 4,2,3,1.",
+        "This solver reads from an instance name of the 'lights-out puzzle",
+        "problem' associated with a binary string which can be of length 4=2*2,",
+        "6=2*3, 9=3*3, 12=3*4, 16=4*4, 20=4*5, 25=5*5, 30=5*6, 36=6*6, 42=6*7, etc.",
+        "This string represents lights that are 'on' in a rectangular matrix of",
+        "size L=M*N. The solver returns a solution as a coordinate:value pair:",
+        "the coordinate is a binary string of length L, and the minimum",
+        "value is 0 for most instances; for some instances, the minimum",
+        "value is 1.",
         "",
-        "natural order   under permutation",
-        "  1,2,3,4          3,1,4,2",
-        "  sum = -8         sum = -13",
-        "------------    ------------",
-        "4               4           ",
-        "  0 0 0 5         0 4 1 1",
-        "  1 0 2 0         0 0 5 0",
-        "  4 1 0 1         1 3 0 2",
-        "  3 2 1 0         2 1 0 0"
+        "For the instance shown below, there exist a single solution only!",
+        "",
+        "instanceInit     solutionBest",
+        " 001001011         001101001",
+        "lights-on= 4     lights-on= 0",
+        "------------     ------------",
+        "  0 0 1            0 0 0",
+        "  0 0 1            0 0 0",
+        "  0 1 1            0 0 0",
     ])
 
     return
-    """
-    #-- begin ABOUT ---------------------------------------------------------------#
-    thisCmd = "B_lightp.info"
-    ABOUT = "\n".join(["This proc takes a variable 'isQuery' and the hard-wired path to file",
-                        "infoVariablesFile *info_variables.txt.\n",
-                        "  if isQuery == 0    then $thisCmd ONLY reads infoVariablesFile and",
-                        "initializes global arrays 'all_info' and 'all_valu'\n",
-                        "  if isQuery == 1    then $thisCmd initializes the global arrays",
-                        "'all_info' and 'all_valu' and then outputs to stdout",
-                        "the complete information about the command line for",
-                        "B.lightp.main. The information about the command line",
-                        "is auto-generated within $thisCmd from the",
-                        "tabulated data which is read from infoVariablesFile",
-                        "defined above.\n",
-                        "   if isQuery == ??  then $thisCmd responds to stdout with information",
-                        "about all three case of valid arguments.\n",
-                        "            B.lightp.main ??   (under tclsh)",
-                        "       or",
-                        "            ../xBin/B.lightpT  (under bash)"])
-    if isQuery == "??":
-        print(ABOUT)
-        return
-    if isQuery == "?":
-        print("Valid query is " + thisCmd + " ??'")
-        return
-    #-- end   ABOUT ---------------------------------------------------------------#
-
-    # read the *.info_variables.txt for this solver domain
-    rList = util.table_info_variables(infoVariablesFile)
-    all_info = rList[0]
-    all_valu = rList[1]
-
-    if not isQuery:
-        return
-
-    # the preferred order (for user query) of optional commandLine argument names
-    optInfoList = ["runtimeLmt", "cntProbeLmt", "cntRestartLmt", "walkLengthLmt", "seedInit", "coordInit", "valueTol", "walkSegmLmt", "walkSegmCoef", "isSimple", "isInitOnly", "isWalkTables", "writeVar"]
-
-    ### Now, respond to a query from the user
-    print("\n".join([
-        "Usage:",
-        "under TkCon shell (which has sourced ../xLib/all_tcl):",
-        "B_lightp.main instanceDef [optional_arguments]",
-        "\n",
-        "under bash, invoking the tcl executable B.lightpT' which sources libraries directly",
-        "../xBin/B_lightpT instanceDef [optional_arguments]",
-        "\n",
-        "under bash, invoking the 'python executable B_lightpP' which sources libraries directly",
-        "../xBin/B_lightpP instanceDef [optional_arguments]",
-        "\n",
-        "under bash, invoking the 'compile C++ code as a binary B.lightpX'",
-        " ../xBin/B.lightpX  instanceDef [optional_arguments]",
-        "\n",
-        "EXAMPLES:",
-        "B.lightp.main     ../xBenchm/lightp/i-6-a-0.txt -isInitOnly",
-        "B.lightp.main     ../xBenchm/lightp/i-6-a-0.txt -seedInit 1215",
-        "../xBin/B.lightpT ../xBenchm/lightp/i-6-a-0.txt -seedInit 1215 -coordInit 010110",
-        "../xBin/B.lightpP ../xBenchm/lightp/i-6-a-0.txt -seedInit 1215 -coordInit [0, 1, 0, 1, 1, 0]",
-        "../xBin/B.lightpX ../xBenchm/lightp/i-6-a-0.txt -seedInit 1215 -runtimeLmt 5",
-        "\n",
-        "DESCRIPTION:",
-        "B.lightp.main, B.lightpT, B.lightpP, or B.lightpX take one REQUIRED argument",
-        "\n",
-        "    instanceDef  (a filePath with an extension .txt)",
-        "\n",
-        "and a number of OPTIONAL arguments in any order.",
-        "\n",
-        "Here is a complete list of 'name defaultValue' options, with short",
-        "in-line descriptions for each option:"]))
-
-    # create nameList and valueList with
-    for name in optInfoList:
-        value = all_valu[name]
-        # create nameList and valuList padded with blank space
-        nameList = []
-        valueList = []
-        nameList.append(name)
-        valueList.append(value)
-        for i in range(len(all_info[name])):
-            nameList.append(" "*len(name))
-            valueList.append(" "*len(value))
-
-        optArgData = [(nameList[i], valueList[i], all_info[name][i]) for i in range(len(all_info[name]))]
-        for (nam, val, descr) in optArgData:
-            cnt = 17 - len(nam)
-            space1 = " "*cnt
-            cnt = 12 - len(val)
-            space2 = " "*cnt
-            if len(nam) > 0 and nam.strip():
-                # prefix with -
-                nam1 = "-"+nam
-            else:
-                nam1 = " "+nam
-
-            print "\t{}{}{}{}\t{}".format(nam1, space1, val, space2, descr)
-            
-        print("\n".join([
-            "\nDETAILS:",
-            "This solver reads from a file an instance of the 'lights-out puzzle problem'",
-            "defined by a binary string which can be of length 4=2*2, 6=2*3, 9=3*3,",
-            "12=3*4, 16=4*4, 20=4*5, 25=5*5, 30=5*6, 36=6*6, 42=6*7, etc. This string",
-            "represents lights that are 'on' in a rectangular matrix of size L=M*N.",
-            "The solver returns a binary solution string of length L that minimizes",
-            "the number of lights that could be turned off for the given instance.",
-            "For the instance shown below, there exist a single solution only!\n",
-            "instanceInit     solutionBest",
-            " 001001011         001101001",
-            "lights-on= 4     lights-on= 0",
-            "------------     ------------",
-            "  0 0 1            0 0 0",
-            "  0 0 1            0 0 0",
-            "  0 1 1            0 0 0"]))
-        return
-    """
 
 def init( instanceDef, args = [] ):
     thisCmd = "B.lightp.init"
     mainProc = "B.lightp.main"
-    #TODO: sdjfsalfjaldfjlak fix this comment too
-    ABOUT = "Procedure " + thisCmd + "takes a variable number of arguments:\ninstanceDef as required argument and args. It then  decodes values of args and\ninitializes all variables under global arrays. $thisCmd is invoked by\nB.lightp.main; for details about the command-line structure, query B.lightp.main ??\nAlso, $thisCmd explicitly returns values of 'targetReached valueInit coordInit'."
+    ABOUT = """
+        Procedure {} takes a variable number of arguments:
+        'instanceDef' as the required argument and optional arguments in any order.
+        It then  decodes values of optional arguments  and initializes all variables
+        under global arrays. {} is invoked by {}; for details about
+        the command-line structure, query '{} ??'.
+        
+        Procedure {} implicitly returns initialized global variables as well as
+        explicit values of
+        
+        'targetReached  coordInit valueInit'.
+        """.format(thisCmd, thisCmd, mainProc, mainProc, thisCmd)
     
     if instanceDef == "??":
         print ABOUT
@@ -371,50 +261,7 @@ def init( instanceDef, args = [] ):
     if instanceDef == "?":
         print "Valid query is '{} ?? '".format(thisCmd)
         return
-    """
-    argsOptions = args
 
-    # read the solver domain table
-    rList = info(0, all_info[infoVariablesFile])
-    all_info = rList[0]
-    all_valu = rList[1]
-
-    #!! (0A) Phase 0A: initialize all NEW global arrays
-    for name in all_info['globalArrays'][0]:
-        # NOTE: array all_info have been initialized ALREADY!!
-        if name != "all_info" and name != "all_valu":
-            name = []
-            
-    # the check on llength of argsOptions when invoked under bash!!
-    if len(argsOptions) == 1:
-        argsOptions = argsOptions[0]
-    print("# ** from: " + thisCmd + ":\n\# instanceDef=" + str(instanceDef) + "\n\# argsOptions=" + str(argsOptions))
-
-    #!! (0B) Phase 0B: extract variable groups from array all_valu (created by proc B.lightp.info)  
-    for name in all_valu:
-        val = all_valu[name]
-
-        if val == "required":
-            namesRequired.append(name)
-        elif val == "internal":
-            namesInternal.append(name)
-        elif val == "FALSE":
-            namesOptionalBool.append(name)
-            if not aV.has_key(name):
-                aV[name] = val
-        #print(".. after initializing aV from all_value array")
-        #pprint(aV)
-    #!! (1) Phase 1: initialize the REQUIRED commandLine variables the global array aV, 
-    #including variables derived from instanceDef in the infoSolutionsFile
-    aV['instanceDef'] = instanceDef# here, instanceDef is the name of the instance
-    #!! #** timing starts ***
-    microSecs = time.time()
-    # read infoSolutionsFile for this instance  
-    infoSolutionsFile.append(all_info['sandboxName'] + ".info_solutions.txt")
-    infoSolutions = all_info['sandboxPath'] + "xBenchlightp" + infoSolutionsFile
-            
-    microSecs = time.time() - microSecs
-    """
     # info global variables
     global all_info
     global all_valu
@@ -422,19 +269,9 @@ def init( instanceDef, args = [] ):
     # instance global variables 
     global aStruc
     # solver global variables
-    global aCoord0
     global aWalkProbed
     global aValueBest
 
-    """
-    global aHashTmp
-    global aHashNeighb
-    global aHashWalk
-    global aWalk
-    global aWalkProbed
-    global aWalkBest
-    global aAdjacent
-    """
     argsOptions = args
 
     rList = info(0, all_info["infoVariablesFile"])
@@ -444,7 +281,7 @@ def init( instanceDef, args = [] ):
     # (0A) Phase 0A: initialize global variables
     aV = {}
     aStruc = {}
-    aCoord0 = {}
+    aCoordHash0 = {}
     aWalkProbed = {}
 
     print "\n".join([
@@ -500,7 +337,6 @@ def init( instanceDef, args = [] ):
     rListTmp = []
     for line in rList:
         if len(line) > 0:
-        # print line
             firstChar = line[0]
             if firstChar != "#":
                 rListTmp.append(line)
@@ -578,7 +414,7 @@ def init( instanceDef, args = [] ):
     # initialize random binary coordinate
     if aV["coordInit"] == None:
         # generate a random permutation coordinate
-        aV["coordInit"] = B.coord.rand(aV["nDim"])
+        aV['coordInit'] = B.coord.rand(aV["nDim"])
         aV['rankInit'] = B.coord.rank(aV["coordInit"])
     else:
         # check if user provided coordInit is the valid length
@@ -589,36 +425,6 @@ def init( instanceDef, args = [] ):
                 "not the expected length {}\n").format(thisCmd, aV["coordInit"], aV["nDim"])
             return
         aV["rankInit"] = B.coord.rank(aV["coordInit"])
-        """
-        if False:
-            if aV["walkIntervalLmt"] == "NA" and aV["walkIntervalCoef"] != "NA":
-                try:
-                    walkIntervalCoef = float(aV["walkIntervalCoef"])
-                    if walkIntevalCoef > 0.:
-                        aV["walkIntervalLmt"] = int(walkIntervalCoef * aV["nDim"])
-                        aV["walkIntervalCoef"] = walkIntervalCoef
-                except:
-                    sys.stderr.write(("\nERROR from {}:"
-                                      "The walkIntervalCoef can only be assigned a value of NA"
-                                      "or a positive number, not {} \n".format(thisCmd, aV["walkIntervalCoef"])))
-                    sys.exit(1)
-        elif aV["walkIntervalLmt"] != "NA" and aV["walkIntervalCoef"] == "NA":
-            try:
-                walkIntervalLmt = int(aV["walkIntervalLmt"])
-                if walkIntervalLmt > 0:
-                    aV["walkIntervalLmt"] = walkIntervalLmt
-            except:
-                sys.stderr.write(("\nERROR from {}:"
-                                  "The walkIntervalLmt can only be assigned a value of NA"
-                                  "or a positive number, not {} \n".format(thisCmd, aV["walkIntervalLmt"])))
-                sys.exit(1)
-        elif aV["walkIntervalLmt"] != "NA" and aV["walkIntervalCoef"] != "NA":
-            sys.stderr.write(("ERROR from {}:"
-                              "The walkIntervalLmt and walkIntervalCoef can only be assigned"
-                              "pairwise values of\n(NA NA) (default) (NA double) or (integer NA)"
-                              "not ({} {})\n".format(thisCmd, aV["walkIntervalLmt"], aV["walkIntervalCoef"])))
-            sys.exit(1)
-    """
 
     if aV["walkSegmLmt"] == "NA" and aV["walkSegmCoef"] != "NA":
         try:
@@ -688,7 +494,6 @@ def init( instanceDef, args = [] ):
     aStruc = rList[2]
     # Timing
     microSecs = time.time()
-
     aV["valueInit"] = f(aV["coordInit"])
     # end timing
     microSecs = time.time() - microSecs
@@ -696,13 +501,14 @@ def init( instanceDef, args = [] ):
     # initialize associated variables for initial probe
     aV["runtime"] = microSecs
     aV["cntProbe"] = 1
+    aV["neighbSize"] = aV["nDim"]
     aV["cntStep"] = 0
     aV["coordPivot"] = aV["coordInit"]
     aV["coordBest"] = aV["coordInit"]
     aV["valuePivot"] = aV["valueInit"]
     aV["valueBest"] = aV["valueInit"]
-    aCoord0= {}
-    aCoord0[tuple(aV["coordInit"])] = []
+    aCoordHash0= {}
+    aCoordHash0[tuple(aV["coordInit"])] = []
 
     # (4) Phase 4: check if valueTarget has been reached, return to main if > 0
     if aV["valueInit"] == aV["valueTarget"]:
@@ -718,19 +524,15 @@ def init( instanceDef, args = [] ):
     aV["cntRestart"] = 0
     aV["walkLength"] = aV["cntStep"]
     aV["neighbSize"] = aV["nDim"] - 1
-        #if aV["neighbDist"] == 1:
-#aV["neighbSize"] = aV["nDim"] - 1
-#else:
-#aV["neighbSize"] = "dynamic"
 
     # (6) Phase 6: initialize special arrays that can be selected w/ arguments
     #       from command line
     if aV["writeVar"] >= 4:
         aV["isSimple"] = 1
-    #aValueBest[aV["valueInit"]] = [0,0,aV["coordInit"]]
-    #aWalkBest[aV["valueInit"]] = [0,0,aV["coordInit"],0,0]
+    aValueBest[aV["valueInit"]] = [0,0,aV["coordInit"]]
+    aWalkBest[aV["valueInit"]] = [0,0,aV["coordInit"],0,0]
 
-    #aWalk[aV["cntStep"]] = "{} {} {} {} {} {}".format(aV["cntStep"], aV["cntRestart"], aV["coordPivot"], aV["valuePivot"], aV["neighbSize"], aV["cntProbe"])
+    aWalk[aV["cntStep"]] = "{} {} {} {} {} {}".format(aV["cntStep"], aV["cntRestart"], aV["coordPivot"], aV["valuePivot"], aV["neighbSize"], aV["cntProbe"])
 
     isPivot = 1
     aV["rankPivot"] = B.coord.rank(aV["coordPivot"])
@@ -769,83 +571,347 @@ def init( instanceDef, args = [] ):
     #result = "{} {} {}".format(aV["targetReached"], aV["valueInit"], aV["coordInit"])
     result = (aV["targetReached"], aV["valueInit"], aV["coordInit"])
     return result
-     
+
+def saw( Query="" ):
+    thisCmd = "B.lightp.saw"
+    sandbox = "B.lightp"
+    initProc = "B.lightp.init"
+    pivotProcSimple = "B.lightp.saw_pivot_simple"
+    pivotProc = "B.lightp.saw_pivot"
+    
+    ABOUT = """
+        Procedure {} takes, as global dictionaries, data structures
+        initialized by {} under the sandbox $sandbox. It then constructs
+        a segment of a self-avoiding walk (SAW). Under the command-line option
+        -isSimple, the walk proceeds under the control of {},
+        while by default the walk is controlled by a significantly more efficient
+        procedure {}. Under various termination conditions, the walk
+        stops and updates the global dictionaries; it also explicitly
+        returns tuple of values, including the 0|1|2 status of targetReached:
+        (targetReached coordBest valueBest)
+        """.format(thisCmd, initProc, pivotProcSimple, pivotProc)
+    if Query == "??":
+        print ABOUT
+        return
+    elif Query == "?":
+        print "Valid query is '{} ??'".format(thisCmd)
+        return
+    
+    # info global variables
+    global all_info
+    global all_valu
+    global aV
+    # instance global variables
+    global aStruc
+    # solver global variables
+    global aCoordHash0
+    global aWalkProbed
+
+    # primary input variables
+    functionID = aV["functionID"]
+    runtimeLmt = aV["runtimeLmt"]
+    cntProbeLmt = aV["cntProbeLmt"]
+    walkLengthLmt = aV["walkLengthLmt"]
+    walkSegmLmt = aV["walkSegmLmt"]
+    valueTarget = aV["valueTarget"]
+    
+    if aV["isSimple"]:
+        procPivotNext = saw_pivot_simple
+    else:
+        procPivotNext = saw_pivot
+    print "# FROM: {}, searching for pivotBest via {}".format(thisCmd,
+            procPivotNext.__name__)
+    # auxiliary variables
+    aV["coordBest"] = aV["coordInit"][:]
+    aV["valueBest"] = aV["valueInit"]
+    coord = aV["coordInit"][:]
+    value = aV["valueInit"]
+    
+    step = 0
+    
+    while True:
+        # Timing
+        microSecs = time.time()
+        
+        # PROBE neighborhood of current pivot
+        bestNeighb = procPivotNext(coord, value)
+        
+        # SELECT next pivot
+        coordNext = bestNeighb[0]
+        valueNext = bestNeighb[1]
+        neighbSize = bestNeighb[2]
+        
+        aCoordHash0[tuple(coordNext)] = []
+        #end timing
+        microSecs = time.time() - microSecs
+        
+        # Record runtime for step
+        aV["runtime"] += microSecs
+        aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
+        
+        # UPDATE valueBest, aValueBest
+        if valueNext <= aV["valueBest"]:
+            aV["valueBest"] = valueNext
+            aV["coordBest"] = coordNext[:]
+        if aV["isWalkTables"]:
+            aV["coordProbedList"] = bestNeighb[3]
+            aV["valueProbedList"] = bestNeighb[4]
+            
+            cntNeighb = 0
+            isPivot = 0
+            for coordPr, valuePr in aV["coordProbedList"], aV["valueProbedList"]:
+                cntNeightb += 1
+                rankPr = P.coord.rank(coord)
+                aWalkProbed[(step,cntNeighb)] = (step, aV["cntRestart"],
+                        coordPr, valuePr, rankPr, isPivot, cntNeighb, None)
+            isPivot = 1
+            neighbSize = cntNeighb
+            aV["rankPivot"] = P.coord.rank(coord)
+            aWalkProbed[(step,0)] = (step, aV["cntRestart"], coord, value,
+                                     rank, isPivot, cntNeighb, aV["cntProbe"])
+        
+        # CHECK the nighboroodSize
+        if aV["neighbSize"] == 0:
+            aV["isTrapped"] = 1
+            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
+            print ("WARNING from {}: isTrapped=1, neighbSize={} ..."
+                   "no free adjacent coordinates...".format(thisCmd, neighbSize))
+            break
+
+        if aV["valueBest"] <= valueTarget:
+            step += 1
+            aV["walkLength"] = step
+            if aV["isWalkTables"]:
+                isPivot = 1
+                neighbSize = cntNeighb
+                rank = P.coord.rank(aV["coordBest"])
+                aWalkProbed[(step,0)] = (step, aV["cntRestart"],
+                        aV["coordBest"][:], aV["valueBest"], rank, isPivot,
+                        cntNeighb, aV["cntProbe"])
+            break
+        else:
+            # UPDATE coord, value, walkLength
+            step += 1
+            aV["walkLength"] = step
+            coord = coordNext[:]
+            value = valueNext
+
+        if aV["cntProbe"] > cntProbeLmt:
+            aV["isCensored"] = 1
+            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
+            print ("WARNING from {}: isCensored=1, cntProbe={} > cntProbeLmt"
+                   "={}\n".format(thisCmd, aV["cntProbe"], aV["cntProbeLmt"]))
+            break
+        if step >= walkLengthLmt:
+            aV["isCensored"] = 1
+            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
+            print ("WARNING from {}: isCensored=1, step={} > walkLengthLmt"
+                   "={}\n".format(thisCmd, step, walkLengthLmt))
+            break
+        if aV["runtime"] > runtimeLmt:
+            aV["isCensored"] = 1
+            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
+            print ("WARNING from {}: isCensored=1, runtime={} > runtimeLmt"
+                   "={}\n".format(thisCmd, aV["runtime"], aV["runtimeLmt"]))
+            break
+
+    if aV["valueBest"] == valueTarget:
+        aV["targetReached"] = 1
+    elif aV["valueBest"] < valueTarget:
+        aV["targetReached"] = 2
+    else:
+        aV["targetReached"] = 0
+    
+    return aV["targetReached"]
+
+def stdout( withWarning = 1 ):
+    thisCmd = "B.lightp.stdout"
+    ABOUT = """This procedure outputs results afer a successful completion of "
+             "a combinatorial solver. The output is directed to 'stdout' and includes "
+             "a solution (a coordinate-value pair) and the observed performance values. "
+             "The format consists of a few comment lines, followed by tabbed "
+             "name-value pairs. The first pair is always\n"
+             "                     instanceDef <value>\n"
+             "This procedure is universal under any function of coordType=P (permutation)!"""
+        
+    #info global vairables
+    global all_info
+    global all_value
+    global aV
+             
+    print ("# \n# FROM {}: A SUMMARY OF NAME-VALUE PAIRS"
+            "\n# commandLine = {}"
+            "\n#    dateLine = {}"
+            "\n#   timeStamp = {}"
+            "\n#".format(thisCmd, aV["commandLine"], aV["dateLine"], aV["timeStamp"]))
+             
+    stdoutNames = ("instanceDef", "instanceInit", "solverID", "solverMethod", "isSimple",
+                    "coordInit", "coordBest", "nDim",
+                    "walkLengthLmt", "walkLength", "cntRestartLmt", "cntRestart",
+                    "cntProbeLmt", "cntProbe", "runtimeLmt", "runtime", "runtimeRead", "sppedProbe", "hostID",
+                    "compiler", "walkSegmLmt", "walkSegmCoef", "seedInit", "valueInit",
+                    "valueBest", "valueTarget", "valueTol", "targetReached", "isCensored")
+             
+    for name in stdoutNames:
+        if name in aV:
+            if name != "solverID":
+                print "{}\t\t{}".format(name, aV[name])
+            else:
+                print "{}\t\tB.lightp.{}".format(name, aV[name].__name__)
+        else:
+            if withWarning:
+                print "# WARNING: no value exist for {}".format(name)
+
 def saw_pivot_simple(coordPiv = [1, 1, 1, 1, 0, 1], valuePiv = 3):
-    #-- begin ABOUT ---------------------------------------------------------------#
     thisCmd = "saw_pivot_simple"
-    ABOUT = "This procedure takes a pivot coordinate/value, probes the distance=1 neighborhood of a 'light-out puzzle' (lightp), subject to the constraints of a SAW (self-avoiding walk) -- i.e. the best coord/value it returns has not been et selected as the pivot for the next step. Neighborhood size of 0 signifies that the next step of a SAW is blocked. This implementation is 'simple', i.e. for each pivot coordinate or length L, there are up to L explicit probes of the function f"
+    ABOUT = """This procedure takes a pivot coordinate/value, probes the distance=1 neighborhood of a 'light-out puzzle' (lightp), subject to the constraints of a SAW (self-avoiding walk) -- i.e. the best coord/value it returns has not been et selected as the pivot for the next step. Neighborhood size of 0 signifies that the next step of a SAW is blocked. This implementation is 'simple', i.e. for each pivot coordinate or length L, there are up to L explicit probes of the function f"""
     if coordPiv == "??":
         print ABOUT
         return
     if coordPiv == "?":
         print "Valid query is '" + thisCmd + " ??'"
         return
-    #-- end   ABOUT ---------------------------------------------------------------#
-    coordBest = None
+
+    #info global variables
+    global all_info
+    global all_valu
+    global aV
+    #instance global variables
+    global aStruc
+    #solver global variables
+    global aCoordHash0
+    global aWalkedProbed
+
+    coordBest = "NA"
     valueBest = sys.maxint
     valueProbedList = []
-    coordBestList = []
     neighbSize = 0
+    coordBestList = []
     coordProbedList = []
     aV['cntProbe'] = 0
-
+    
     # We take coordPivot and flip the bit from left-to-right,
     # while also extracting neighbor with local valueBest.
     # To make this selection unbiased, we visit neighbors
     # in random order by first permuting aV(varList).
     # NOTE: To maintain a self-avoiding walk, the neighborhood
     # is defined only for coordinates not already used in the walk.
-
+    
     if aV['writeVar'] == 3:
         distance = 0
         rank = B.coord.rank(coordPiv)
-        rowLines = "\nA trace from " + thisCmd + ":\nEvaluating neighbors of coordPivot=" + str(coordPiv) + "\ncntProbe\tIdx\tcoordPivot\tvalPivot\tcoordAdj\tvalAdj\tdist\trank\n~\t~\t" + str(coordPiv) + "\t" + str(valuePiv) + "\t~\t~\t" + str(distance) + "\t" + str(rank) + "\n"
-        varList = aV['varList']
-    else:
-        varList = aV['varList']
-        shuffle(varList)
-        print("cp:" + str(coordPiv))
-    for var in varList:
+        rowLines = "\nA trace from " + thisCmd + ":\nEvaluating neighbors of coordPivot="
+        + str(coordPiv)
+        + "\ncntProbe\tIdx\tcoordPivot\tvalPivot\tcoordAdj\tvalAdj\tdist\trank\n~\t~\t"
+        + str(coordPiv) + "\t" + str(valuePiv) + "\t~\t~\t" + str(distance) + "\t" + str(rank) + "\n"
+    for var in aV['varList']:
         i = var - 1
-        coordAdj = list(coordPiv)
+        coordAdj = coordPiv[:]
         if coordAdj[i]:
             coordAdj[i] = 0
         else:
             coordAdj[i] = 1
-            ##!! To maintain a self-avoiding walk, coordinates from the walk
-            ##!! should be excluded from the neighborhood of the current pivot.
-            #parray aCoordHash0
-        scoordAdj = str(coordAdj)
-        if not aCoordHash0.has_key(scoordAdj):
+        ##!! To maintain a self-avoiding walk, coordinates from the walk
+        ##!! should be excluded from the neighborhood of the current pivot.
+        #parray aCoordHash0
+        if tuple(coordAdj) not in aCoordHash0:
             neighbSize += 1
             rList = f(coordAdj, aV['coordInitF'])
-            valueAdj = rList
+            valueAdj = rList[0]
             aV['cntProbe'] += 1
             #!! aggregate coordBestList for random selection later
             if valueAdj <= valueBest:
                 if valueAdj < valueBest:
                     coordBestList = []
-                    valueBest = valueAdj
-                    coordBest = list(coordAdj)
-                    coordBestList.append(coordBest)
-                if aV['writeVar'] == 3:
-                    distance = B.coord.distance(coordAdj, coordPiv)
-                    rank = B.coord.rank(coordAdj)
-                    rowLines += str(aV['cntProbe']) + "\t" + str(i) + "\t" + str(coordBest) + "\t" + str(valueBest) + "\t" + str(coordAdj) + "\t" + str(rList) + "\t" + str(distance) + "\t" + str(rank) + "\n"
-    #if aV['writeVar'] == 3:
-        #print(rowLines)
-        #!! randomize the choice of coordBest from coordBestList
+                valueBest = valueAdj
+                coordBest = coordAdj[:]
+                coordBestList.append(coordBest)
+            if aV['writeVar'] == 3:
+                distance = B.coord.distance(coordAdj, coordPiv)
+                rank = B.coord.rank(coordAdj)
+                rowLines += str(aV['cntProbe']) + "\t" + str(i) + "\t" + str(coordBest) + "\t" + str(valueBest) + "\t" + str(coordAdj) + "\t" + str(rList) + "\t" + str(distance) + "\t" + str(rank) + "\n"
+    if aV['writeVar'] == 3:
+        print rowLines + "--neighbSize=" + str(neighbSize);
+    
+    #!! randomize the choice of coordBest from coordBestList
     idx = int(random.random()*len(coordBestList))
-    if len(coordBestList) > 0:
-        coordBest = coordBestList[idx]
+    coordBest = coordBestList[idx]
+
+    if neighbSize > 0:
+        return str(coordBest) + " " + str(valueBest) + " " + str(neighbSize) + " " + str(coordProbedList) + " " + str(valueProbedList)
     else:
-        coordBest = None
+        return "NA NA neighbSize {} {}"
 
-    return str(coordBest) + " " + str(valueBest) + " " + str(neighbSize) + " " + str(coordProbedList) + " " + str(valueProbedList)
+def saw_pivot(coordPiv=[1,0,1,0,1,0], valuePiv="NA"):
+    thisCmd = "B.lightp.saw.pivot"
+    ABOUT = """
+        This procedure takes a pivot coordinate/value, probes the distance=1
+        neighborhood of a 'lightp' (a linear ordering probelm), subject to the
+        constraints of a SAW (self-avoiding walk) -- i.e. the best coord/value it
+        returns has not been yet been selected as the pivot for the next step.
+        Neighborhood size of 0 signifies that the next step of a SAW is blocked.
+        \n This implementation is 'FAST', i.e. for each pivot coordinate of length L,
+        there are up to L-1 FAST tableau-based probes of each pivot coordinate.
+        """
+    if coordPiv == "??":
+        print ABOUT
+        return
+    elif coordPiv == "?":
+        print "Valid query is '{} ??'".format(thisCmd)
+        return
 
-def patterns(instanceInit = [0, 0, 0, 0]):
-    if isinstance(instanceInit, int):
-        instanceInit = [int(i) for i in str(instanceInit)]
+    # info global variables
+    global all_info
+    global all_valu
+    global aV
+    # instance global variables
+    global aStruc
+    # Solver global variables
+    global aCoordHash0
+    global aWalkProbed
+
+    coordBest = None
+    valueBest = sys.maxint
+    valueProbedList = []
+    coordBestList = []
+    neighbSize = 0
+    coordProbedList = []
+    
+    M = aV["M"]
+    N = aV["N"]
+    L = aV["nDim"]
+    
+    rList = fAdj(coordPiv)
+    valuePiv = rList[0]
+    aValueAdj = rList[1]
+    if aV["writeVar"] == 3:
+        print "pivotPair = {}:{}".format(coordPiv, valuePiv)
+        print aValueAdj
+        print aCoordHash0
+    
+    valueOrderedList = aValueAdj[:]
+    valueOrderedList.sort()
+    
+    isBestFound = False
+    neighbSize = aV["neighbSize"]
+    for value in valueOrderedList:
+        for coord in aValueAdj:
+            if tuple(coord) not in aCoordHash0:
+                coordBest = coord
+                valueBest = value
+                isBestFound = True
+            if isBestFound:
+                break;
+            else:
+                neighbSize -= 1
+        if isBestFound:
+            break
+
+    return (coordBest, valueBest, neighbSize)
+
+def patterns(instanceInit = [1, 1, 0, 1, 0, 0]):
+    thisCmd="B.lightp.patterns"
+    ABOUT="""This proc takes ... ."""
     L = len(instanceInit)
     M = 0
     N = 0
@@ -864,7 +930,7 @@ def patterns(instanceInit = [0, 0, 0, 0]):
     mP = [[[0 for k in xrange(-1, L)] for j in xrange(N)] for i in xrange(M)]
     for i in range(M):
         for j in range(N):
-            k = (i)*N + j
+            k = (i) * N + j
             mP[i][j][-1] = int(instanceInit[k])
     if L == 4:
         for k in xrange(L):
@@ -1072,6 +1138,12 @@ def patterns(instanceInit = [0, 0, 0, 0]):
     return retVal
 
 def f(coord = [1, 0, 1, 0, 1, 0]):
+    thisCmd = "B.lightp.f"
+    ABOUT = """This procedure takes a binary coordinate (passed as an argument) and the"
+        "data structure created by procedure  B.lightp.patterns (a matrix passed"
+        "in a global array aStruc). It computes and returns the instance function"
+        "value, given this coordinate."""
+        
     fVal = 0
     isTestOnly = 0
     if aV['valueTarget'] == -1:
@@ -1132,15 +1204,112 @@ def f(coord = [1, 0, 1, 0, 1, 0]):
             #print("coord_value_pair = " + str(coord) + ":" + str(fVal))
     return fVal
 
+def fAdj(coordPiv = [1,0,1,0,1,0]):
+    thisCmd = "B.lightp.fAdj"
+    ABOUT = """This procedure takes a pivot coordinate and returns **a COMPLETE set of"
+        "adjacent function values**  for the 'light-out puzzle problem' (lightp)."
+        "We use a tableau formulation to **efficiently** probe the function not only"
+        "with the pivot coordinate but also with **all** of L=M*N adjacent coordinates."
+        "Values associated with adjacent coordinates are returned in an associated"
+        "array aValueAdj; it can be searched efficiently for coordBest and valueBest"
+        "before deciding on the pivotBest for the next step under the rules of"
+        "the self-avoiding walk."""
+    if coordPiv == "??":
+        print ABOUT
+        return
+    elif coordPiv == "?":
+        print "Valid query is '{} ??'".format(thisCmd)
+        return
+    # info global variables
+    global all_info
+    global all_valu
+    global aV
+    # instance global variables
+    global aStruc
+
+    M = aV["M"]
+    N = aV["N"]
+    L = aV["nDim"]
+
+    # PASS 1: given coordinate 'coordPiv' and aStruc($i,$j,$k),
+    mInit = [x[:] for x in [[0]*N]*M]
+    mAdd = [x[:] for x in [[0]*N]*M]
+    for i in range(M):
+        for j in range(N):
+            mInit[i][j] = aStruc[i][j][-1]
+            mAdd[i][j] = 0
+
+    for k in range(L):
+        isAsserted = int(coordPiv[k])
+        if isAsserted:
+            for i in range(M):
+                for j in range(N):
+                    mAdd[i][j] = (mAdd[i][j] + aStruc[i][j][k]) % 2
+                for i in range(M):
+                    row = []
+                    for j in range(N):
+                        row.append(mAdd[i][j])
+
+    valuePiv = 0
+    mTot = [x[:] for x in [[0]*N]*M]
+    mAdj = [x[:] for x in [[0]*N]*M]
+    
+    for i in range(M):
+        for j in range(N):
+            mTot[i][j] = (mInit[i][j] + mAdd[i][j]) % 2
+            valuePiv = valuePiv + mTot[i][j]
+    aV["cntProbe"] += 1
+    
+    aCoordAdj = {}
+    aValueAdj = {}
+    
+    for k in range(L):
+        bit = coordPiv[k]
+        coordAdj = coordPiv[:]
+        if bit:
+            coordAdj[k] = 0
+        else:
+            coordAdj[k] = 1
+        valueAdj = 0
+        for i in range(M):
+            for j in range(N):
+                mAdj[i][j] = (mTot[i][j] + aStruc[i][j][k]) % 2
+                valueAdj = valueAdj + mAdj[i][j]
+        aCoordAdj[str(coordAdj)] = valueAdj
+        aValueAdj[str(valueAdj)].append(coordAdj)
+    
+    aV["cntProbe"] += 1
+    if aV["writeVar"] == 3:
+        print( "FROM: {}"
+              "\nreturning the pivot coordinate:value pair AND ALL ADJACENT"
+              "\ncoordinate:value pairs, computed via the tableau method,"
+              " cntProbe={}"
+              "\n-----\tcoord\tvalue\t-adj-value-from-P.lop.f"
+              "\npivot\t{}\t{}\t{}".format(thisCmd, aV["cntProbe"], coordPiv,
+                    valuePiv, f(coordPiv)))
+    return [valuePiv, aValueAdj]
+
 def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     thisCmd = "B_lightp.exhA"
+    ABOUT="""This proc takes a binary coordinate instanceInit that defines the initial"
+           "configuration of lights-out in the puzzle under the sandbox B.lightp."
+           "It then performs an exhaustive evaluation for function values"
+           "defined by instanceInit and returns the minimum value solutions as a list"
+           "of coordinate:value pairs. A rank value (in context of the"
+           "underlying Hasse graph) is also associated with each coordinate. For"
+           "coordinate lengths of size <= 6, the procedure returns the exhaustive"
+           "solution set and a data structure that can be passed on to a follow-up tcl"
+           "procedure B.lightp.hasse which creates a file of vertices and a file of edges"
+           "annotated with x-y coordinates for plotting of Hasse graphs under R."
+           "A special case is induced when instanceInit = 000....000 (all zeros):"
+           "this induces SAWs that may create a trapped pivot in Hasse graphs."""
     
     L = len(instanceInit)
     rList = patterns(instanceInit)
     M = rList[0]
     N = rList[1]
     aStruc = rList[2]
-    #print("gv = " + str(aStruc))
+    #print(str(aStruc))
 
     if len(rList) == 4 and rList[3] == 0:
         aV['valueTarget'] = -1
@@ -1158,8 +1327,8 @@ def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     aV['varList'] = []
     for i in range(1, L):
         aV['varList'].append(i)
-        #print(aV)
-        #return
+    #print(aV)
+    #return
 
     coordList = []
     
@@ -1272,7 +1441,7 @@ For a stdout query, use one of these these commands:
     
     # define coordinate:value pair with rank=0
     coordRef = [0 for x in range(L)]
-    coordList0 = [list(coordRef)]
+    coordList0 = [coordRef[:]]
     value = B.lightp.f(coordRef)
     valueBest = 1e30
     bestAry = {value: ["000_"+",".join(imap(str,coordRef))+":"+str(value)]}
@@ -1300,7 +1469,7 @@ For a stdout query, use one of these these commands:
         for coord in coordList0:
             for k in xrange(L):
                 bit = coord[k]
-                coordAdj = list(coord)
+                coordAdj = coord[:]
                 if bit:
                     coordAdj[k] = 0
                 else:
@@ -1376,417 +1545,6 @@ For a stdout query, use one of these these commands:
     for key in sorted(coordDistrib):
         print "coordDistrib({})".format(key)+" =",coordDistrib[key]
 
-    """
-
-    coordAry = {}
-    coordAry[0] = []
-    for i in range(nDim):
-        coordAry[i] = []
-        coordAry[0].append([0 for x in range(nDim)])
-        #print(str(coordAry))
-
-    cntCoord = 1
-    coordDistrib = {0:1}
-    valueBest = 1e30
-    
-    runtimeCoord = 0.0
-    runtimeProbe = 0.0
-
-    for rank in range(1, nDim + 1):
-        coordDistrib[rank] = 0
-        aCoordHash = {}
-
-        microSecs = time.time()
-        #print(str(microSecs))
-        for coord in coordAry[rank - 1]:
-            for i in range(nDim):
-                cAdj = list(coord)
-                if cAdj[i]:
-                    cAdj[i] = 0
-                else:
-                    cAdj[i] = 1
-                    #print(str(cAdj))
-                weight = B.coord.rank(cAdj)
-                scAdj = str(cAdj)
-                if weight == rank and not aCoordHash.has_key(scAdj):
-                    aCoordHash[scAdj] = []
-                    if not coordAry.has_key(weight):
-                        coordAry[weight] = []
-                        coordAry[weight].append(cAdj)
-                        cntCoord += 1
-                        coordDistrib[rank] += 1
-                        #pprint(coordDistrib)
-                        #print(cAdj)
-        microSecs = time.time() - microSecs
-        #print(str(microSecs))
-        runtimeCoord += microSecs
-        #print(str(coordAry))
-    if nDim <= 6:
-        pprint(coordAry)
-
-    print("\
-      \n instanceDef = {}\
-      \n coordLength = {}\
-      \n coordTotal  = {}\
-      \n runtimeCoord = {:6.4}\
-      \n hostID = {}@{}-{}-{}\
-      \n dateLine = {}\
-      \n thisCmd = {}\n".format(instanceDef, nDim, cntCoord, runtimeCoord, getpass.getuser(), os.uname()[1], platform.system(), os.uname()[2], time.strftime("%a %b %H:%M:%S %Z %Y"), "exhB()"))
-    
-    pprint(coordDistrib)
-    """
     return
 
-#Code attained from: http://stackoverflow.com/questions/13214809/pretty-print-2d-python-list
-#Used for testing reasons
-def prettyPrint(matrix):
-    s = [[str(e) for e in row] for row in matrix]
-    lens = [max(map(len, col)) for col in zip(*s)]
-    fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
-    table = [fmt.format(*row) for row in s]
-    print '\n'.join(table)
-
-def is_int(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-
-def stdout( withWarning = 1 ):
-    ABOUT = ("This procedure outputs results afer a successful completion of "
-             "a combinatorial solver. The output is directed to 'stdout' and "
-             "includes a solution (a coordinate-value pair) and the observed "
-             "performance values. The format consists of a few comment lines, "
-             "followed by a tabbed name-value pairs. The first piar is always\n"
-             "instanceDef <value>\n"
-             "This procedure is universal under any function coordType=P!")
-    thisCmd = "B.lightp.stdout"
-    
-    #info global vairables
-    global all_info
-    global all_value
-    global aV
-
-    print ("# \n# FROM {}: A SUMMARY OF NAME-VALUE PAIRS"
-           "\n# commandLine = {}"
-           "\n#    dateLine = {}"
-           "\n#   timeStamp = {}"
-           "\n#".format(thisCmd, aV["commandLine"], aV["dateLine"], aV["timeStamp"]))
-
-    stdoutNames = ("instanceDef", "solverID", "coordInit", "coordBest", "nDim",
-                   "walkLengthLmt", "walkLength", "cntRestartLmt", "cntRestart", 
-                   "cntProbeLmt", "cntProbe", "runtimeLmt", "runtime", "runtimeRead", 
-                   "speedProbe", "hostID", "isSimple", "neighbDist", "solverMethod",
-                   "walkSegmLmt", "walkSegmCoef", "walkIntervalLmt", "walkIntervalCoef",
-                   "walkRepeatsLmt", "seedInit", "valueInit", "valueBest", "valueTarget",
-                   "valueTol", "targetReached", "isCensored")
-
-    for name in stdoutNames:
-        if name in aV:
-            print "{}\t\t{}".format(name, aV[name])
-        else:
-            if withWarning:
-                print "# WARNING: no value exist for {}".format(name)
-
-def saw(arg=""):
-    thisCmd = "B.lightp.saw"
-    ABOUT = """
-        Procedure $thisCmd takes global array values initialized under B.lightp.init
-        and constructs a segment of a self-avoiding walk (SAW). Either B.lightp.saw.pivot.simple
-        or the significantly more efficient procedure B.lightp.saw.pivot.ant is invoked.
-        More to come ....
-        """
-    if arg == "??":
-        print ABOUT
-        return
-    elif arg == "?":
-        print "Valid query is '{} ??'".format(thisCmd)
-        return
-    #raise Exception("Valid query is '{} ??'".format(thisCmd))
-    #sys.stderr.write("Valid query is '{}' ??'\n".format(thisCmd))
-    #sys.exit(1)
-    
-    # info global variables
-    global all_info
-    global all_valu
-    global aV
-    # instance global variables
-    global aStruc
-    # solver global variables
-    global aCoordHash0
-    global aWalkProbed
-
-    # primary input variables
-    functionID = aV["functionID"]
-    runtimeLmt = aV["runtimeLmt"]
-    cntProbeLmt = aV["cntProbeLmt"]
-    #walkRepeatsLmt = aV["walkRepeatsLmt"]
-    #walkIntervalLmt = aV["walkIntervalLmt"]
-    walkSegmLmt = aV["walkSegmLmt"]
-    valueTarget = aV["valueTarget"]
-    
-    if aV["isSimple"]:
-        procPivotNext = saw_pivot_simple
-    else:
-        procPivotNext = saw_pivot
-    print "# FROM: {}, searching for pivotBest via {}".format(thisCmd,
-                                                          procPivotNext.__name__)
-    # auxiliary variables
-    aV["coordPivot"] = aV["coordInit"]
-    aV["valuePivot"] = aV["valueInit"]
-    aV["coordBest"] = aV["coordPivot"]
-    aV["valueBest"] = aV["valuePivot"]
-    step = 0
-    
-    while True:
-        # Timing
-        microSecs = time.time()
-        
-        # UPDATE walkLength
-        step += 1
-        aV["walkLength"] += 1
-        # PROBE neighborhood of current pivot
-        bestNeighb = procPivotNext(aV["coordPivot"], aV["valuePivot"])
-        
-        # SELECT next pivot
-        aV["coordPivot"] = bestNeighb[0]
-        aV["valuePivot"] = bestNeighb[1]
-        aV["neighbSize"] = bestNeighb[2]
-        print("NEIGHBSIZE:" + str(aV["neighbSize"]))
-        if aV["isWalkTables"]:
-            aV["coordProbedList"] = bestNeighb[3]
-            aV["valueProbedList"] = bestNeighb[4]
-            
-            walkLengthM1 = aV["walkLength"] - 1
-            neighbSize = 0
-            isPivot = 0
-            for coord, value in aV["coordProbedList"], aV["valueProbedList"]:
-                neighbSize += 1
-                rank = P.coord.rank(coord)
-                aWalkProbed[(walkLengthM1,neighbSize)] = ( walkLengthM1,
-                                                          aV["cntRestart"], coord, value, rank, isPivot,
-                                                          neighbSize, None)
-            isPivot = 1
-            aV["rankPivot"] = P.coord.rank(aV["coordPivot"])
-            aWalkProbed[(aV["walkLength"],0)] = (aV["walkLength"],
-                                                 aV["cntRestart"], aV["coordPivot"], aV["valuePivot"],
-                                                 aV["rankPivot"], isPivot, aV["neighbSize"], aV["cntProbe"])
-        
-        if aV["coordPivot"] is not None:
-            aCoordHash0[tuple(aV["coordPivot"])] = []
-        
-        # UPDATE valueBest, aValueBest, aWalkBest
-        if aV["valuePivot"] <= aV["valueBest"]:
-            aV["valueBest"] = aV["valuePivot"]
-            aV["coordBest"] = aV["coordPivot"]
-        # CHECK the nighboroodSize
-        if aV["neighbSize"] == 0:
-            aV["isBlocked"] = 1
-            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
-            print ("WARNING from {}: isBlocked=1, aV['neighbSize']={} ..."
-                   "no available neighborhood coordinates ...".format(thisCmd,
-                                                                      aV["neighbSize"]))
-            return
-        #end timing
-        microSecs = time.time() - microSecs
-        
-        # Record runtime for step
-        aV["runtime"] += microSecs
-        aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
-        
-        if aV["valueBest"] <= valueTarget:
-            break
-    
-        if aV["cntProbe"] > cntProbeLmt:
-            aV["isCensored"] = 1
-            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
-            print ("WARNING from {}: isCensored=1, cntProbe={} > cntProbeLmt"
-                   "={}\n".format(thisCmd, aV["cntProbe"], aV["cntProbeLmt"]))
-            return
-        if aV["runtime"] > runtimeLmt:
-            aV["isCensored"] = 1
-            aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
-            print ("WARNING from {}: isCensored=1, runtime={} > runtimeLmt"
-                   "={}\n".format(thisCmd, aV["runtime"], aV["runtimeLmt"]))
-            return
-
-    if aV["valueBest"] == aV["valueTarget"]:
-        aV["targetReached"] = 1
-    elif aV["valueBest"] < aV["valueTarget"]:
-        aV["targetReached"] = 2
-    else:
-        aV["targetReached"] = 0
-    
-    return aV["targetReached"]
-
-def saw_pivot(coordPiv=[5,3,2,1,4], valuePiv=-46):
-    thisCmd = "B.lightp.saw.pivot"
-    ABOUT = """
-        This procedure takes a pivot coordinate/value, probes the distance=1
-        neighborhood of a 'lightp' (a linear ordering probelm), subject to the
-        constraints of a SAW (self-avoiding walk) -- i.e. the best coord/value it
-        returns has not been yet been selected as the pivot for the next step.
-        Neighborhood size of 0 signifies that the next step of a SAW is blocked.
-        \n This implementation is 'FAST', i.e. for each pivot coordinate of length L,
-        there are up to L-1 FAST tableau-based probes of each pivot coordinate.
-        """
-    if coordPiv == "??":
-        print ABOUT
-        return
-    elif coordPiv == "?":
-        print "Valid query is '{} ??'".format(thisCmd)
-        return
-    #raise Exception("Valid query is '{} ??'".format(thisCmd))
-    #sys.stderr.write("Valid query is '{}' ??'\n".format(thisCmd))
-    #sys.exit(1)
-
-    # info global variables
-    global all_info
-    global all_valu
-    global aV
-    # instance global variables
-    global aStruc
-    # Solver global variables
-    global aCoordHash0
-    global aWalkProbed
-
-    coordBest = None
-    valueBest = 2147483641 #@TODO: change to max int
-    valueProbedList = []
-    coordBestList = []
-    neighbSize = 0
-    coordProbedList = []
-
-    M = aV["M"]
-    N = aV["N"]
-    L = aV["nDim"]
-
-    rList = fAdj(coordPiv)
-    valuePiv = rList[0]
-    aValueAdj = rList[1]
-
-    valueOrderedList = list(aValueAdj)
-    valueOrderedList.sort()
-
-    if aV["writeVar"] == 3:
-        pprint(aValueAdj)
-        pprint(aCoordHash0)
-
-    isBestFound = False
-    neighbSize = aV["neighbSize"]
-    for value in valueOrderedList:
-        for coord in aValueAdj:
-            if len(coord) and not aCoordHash0.has_key(str(coord)):
-                coordBest = coord
-                valueBest = value
-                isBestFound = True
-            if isBestFound:
-                break;
-            else:
-                neighbSize -= 1
-        if isBestFound:
-            break;
-    return [coordBest, valueBest, neighbSize]
-
-def fAdj(coordPiv = [1,0,1,0,1,0]):
-    thisCmd = "B.lightp.fAdj"
-    ABOUT = """
-        Procedure $thisCmd takes global array values initialized under B.lightp.init
-        and constructs a segment of a self-avoiding walk (SAW). Either B.lightp.saw.pivot.simple
-        or the significantly more efficient procedure B.lightp.saw.pivot.ant is invoked.
-        More to come ....
-        """
-    if coordPiv == "??":
-        print ABOUT
-        return
-    elif coordPiv == "?":
-        print "Valid query is '{} ??'".format(thisCmd)
-        return
-    # info global variables
-    global all_info
-    global all_valu
-    global aV
-    # instance global variables
-    global aStruc
-
-    M = aV["M"]
-    N = aV["N"]
-    L = aV["nDim"]
-
-    mInit = [x[:] for x in [[0]*N]*M]
-    mAdd = [x[:] for x in [[0]*N]*M]
-    for i in range(M):
-        for j in range(N):
-            mInit[i][j] = aStruc[i][j][-1]
-            mAdd[i][j] = 0
-
-    for k in range(L):
-        isAsserted = int(coordPiv[k])
-        if isAsserted:
-            for i in range(M):
-                for j in range(N):
-                    mAdd[i][j] = (mAdd[i][j] + aStruc[i][j][k]) % 2
-                for i in range(M):
-                    row = []
-                    for j in range(N):
-                        row.append(mAdd[i][j])
-
-    valuePiv = 0
-    mTot = [x[:] for x in [[0]*N]*M]
-    mAdj = [x[:] for x in [[0]*N]*M]
-
-    for i in range(M):
-        for j in range(N):
-            mTot[i][j] = (mInit[i][j] + mAdd[i][j]) % 2
-            valuePiv = valuePiv + mTot[i][j]
-    aV["cntProbe"] += 1
-
-    aCoordAdj = {}
-    #aValueAdj = [x for x in [[]]*L]
-    aValueAdj = {}
-
-    for k in range(L):
-        bit = coordPiv[k]
-        coordAdj = list(coordPiv)
-        if bit:
-            coordAdj[k] = 0
-        else:
-            coordAdj[k] = 1
-        valueAdj = 0
-        for i in range(M):
-            for j in range(N):
-                mAdj[i][j] = (mTot[i][j] + aStruc[i][j][k]) % 2
-                valueAdj = valueAdj + mAdj[i][j]
-        aCoordAdj[str(coordAdj)] = valueAdj
-        aValueAdj[str(valueAdj)].append(coordAdj)
-
-    aV["cntProbe"] += 1
-    if aV["writeVar"] == 3:
-        print("fjskldfjdskflsjdfklsadjfskl TODO: Finish this")
-    return [valuePiv, aValueAdj]
-    
 #if __name__ == "__main__":
-#main("i-16-a-0")
-#main("?")
-#main("i-16-a-0", true, 1901, true)
-#print("patterns()")
-#prettyPrint(patterns())
-#print("f()")
-#print(f([0, 0, 0, 1, 0, 1, 1, 0, 1], [1, 0, 1, 0, 0, 0, 0, 0, 0]))
-#print(f([1, 1, 1, 0, 0, 0, 1, 1, 0], [0, 1, 0, 0, 0, 1, 0, 0, 1]))
-#print("exhA()")
-#exhA([2, 2], 1215)
-#exhA([3, 3])
-#exhA([3, 3], 3872)
-#exhA([3, 3], 5914)
-#exhA([3, 3], -1)
-#exhA([2, 2], 1215)
-#print(exhA([0, 1, 1, 0]))
-#print(exhA([1, 0, 0, 0, 0, 0]))
-#print("exhB()")
-#exhB()
-#print("saw_pivot_simple()")
-#print(saw_pivot_simple([1, 1, 0, 0], 3))
-#print(saw_pivot_simple([0, 1, 1, 1], 3))
-#print(saw_pivot_simple([0, 0, 0, 0, 0, 1], 6))
