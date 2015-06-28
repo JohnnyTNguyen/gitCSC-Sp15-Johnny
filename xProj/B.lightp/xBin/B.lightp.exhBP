@@ -1,0 +1,37 @@
+#! /usr/bin/env python 
+import os
+import sys
+import time
+
+thisVersion = 20150529
+
+currDir = os.path.dirname(os.path.realpath(__file__))
+thisDir = currDir 
+
+execfile(os.path.dirname(currDir) + "/xLib/all_python.py")
+
+thisScript = os.path.basename(__file__)
+def B_lightp_exhBT_Main(argv = sys.argv[1:], argc = len(sys.argv[1:])):
+    thisProc = "B.lightp.Main"
+    if argc == 0:
+        B.lightp.exhB('??')
+        return
+
+    instanceDef = argv[0]
+    B.lightp.exhB(instanceDef)
+
+    print "\n**completing {}**".format(thisProc)
+    return
+
+progCommand = "{} {}".format(thisScript, sys.argv[1:])
+firstLine = "# {}\n# progName = {}\n# progArgs = {}\n# {} ".format("+"*76, 
+        thisScript, sys.argv[1:], time.strftime("%a %b %d %H:%M:%S %Z %Y"))
+
+print firstLine
+
+B_lightp_exhBT_Main()
+
+lastLine = "# {} ..completed {}\n# {}\n".format(
+        time.strftime("%a %b %d %H:%M:%S %Z %Y"), thisScript, "+"*76)
+
+print lastLine

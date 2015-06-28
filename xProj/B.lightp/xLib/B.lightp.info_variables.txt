@@ -1,0 +1,97 @@
+# table.info_variables.csv ../xLib/B.lightp.info_variables.csv
+# invoked on Thu May  7 10:01:13 EDT 2015
+#
+# This table documents principal variables defined under the function domain B.lightp
+# B = binary-based coordinates, lightp = lights-out puzzle problem
+#
+# Valid values that are interpreted default values for optional arguments include:
+#   integers, reals, FALSE, NA, strings of contiguous non-space characters other 
+#   than the two special keywords 'required' and 'internal'. These two keywords are
+#   interpreted internally to the program and do not represent optional arguments.
+#
+# Characters ';' and '"' should be excluded from variable description.
+#
+# All variable descriptions are limited to 80 characters per line; if description
+# is on more than a single line, values of variableName and variableDefault must be 
+# repeated for each continuation line.
+#
+# variableName	     variableDefault	variableDescription
+cntProbe            internal            Counts the number of objective function invocations (or probes).
+cntProbeLmt         2147483647          Stop if the solver reaches this value.
+cntRestart          internal            Counts the number of restarts within the solver.
+cntRestartLmt       2147483647          Stop if the solver reaches this value.
+cntStep             internal            Counts the number of pivot steps during the walk.
+commandLine         internal            Example: B.lightp.main ../xBenchm/lightp/i-6-a-0.txt  -seedInit 12
+commandName         internal            Example: B.lightp.main
+coordBest           internal            A follow-up coordinate on coordInit, associated with valueBest.
+coordInit           NA                  If NA, a random binary coordinate is generated internally as a binary string
+coordInit           NA                  of size nDim — unless the initial coordinate is entered by the user.
+coordPivot          internal            A coordinate associated also with coordInit or coordBest.
+coordRef            internal            A binary coordinate of all 0’s defined to have a rank of 0 in the Hasse graph.
+coordType           internal            A coordinate type: B for binary, P for permutation, T for ternary, etc.
+dateLine            internal            A string of words to express date and time, e.g. Tue Apr 21 15:53:42 EDT 2015
+functionDomain      internal            The name of the project directory, e.g. B.lightp, P.lop, P2A.cryptp, etc.
+functionID          internal            The substring name of the project directory, e.g. lightp, lop, labs, etc.
+globalArrays        internal            all_info all_valu aV aStruc aCoordHash0 aWalkProbed
+hostID              internal            A string of contiguous non-space characters derived from platform environment.
+infoSolutionsFile   internal            A required file read by the program to determine valueBestKnown that also
+infoSolutionsFile   internal            defines the stopping criterion. The file also archives <= 2 coordBest strings.
+infoSolutionsFile   internal            The file name is B.lightp/xBenchm/lightp/B.lightp.info_solutions.txt
+instanceDef	    required	        A required command-line argument: here a character string as per below.
+instanceDef         required            A character string stored in infoSolutionsFile (for file location, see above). 
+instanceDef         required            Example: i-6-a-0 (instanceDim=6, valueTarget=0).
+instanceDim         internal            An integer substring within instanceDef, an integer value that has a value
+instanceDim         internal            equivalent to nDim before any variable reductions (due to symmetry etc).
+instanceID	    internal            Here, an alias to instanceDef (see above).
+instanceInit	    internal            A binary string of length nDim that initializes the instance M*N matrix.
+instanceInit        internal            This string is stored in infoSolutionsFile (for file location, see above).
+isCensored          internal            If solver returns value of FALSE, runtime and other results are being censored.
+isInitOnly          FALSE               If asserted, only the procedure *.init is invoked, solver exits afterwards.
+isProven            internal            A boolean variable read from the infoSolutionsFile.
+isSimple            FALSE               If asserted, simpler-to-code but less efficient procedures are invoked.
+isWalkTables        FALSE               Walk tables are generated if both isWalkTables AND isSimple are asserted.
+M	            internal	        Number of rows in the instance M*N matrix (see instanceInit above).
+N	            internal	        Number of columns in the instance M*N matrix (see instanceInit above).
+nDim                internal            The effective size of coordinate related to instanceDef; nDim = M*N (see above).
+#neighbDist          1                   By default, neighbDist = 1 probes the pivot neighborhood at
+#neighbDist          1                   distance of 1 only -- the maximum distance <= nDim.
+neighbSize          internal            Size of the neighborhood around current pivot: the maximum neighbSize = nDim.
+#notSAW              FALSE               If asserted, the self-avoiding walk principles are disabled.
+#notStdout           FALSE               If asserted, results are not reported to stdout.
+rankBest            internal            The rank of coordBest with respect to coordRef.
+rankInit            internal            The rank of coordInit with respect to coordRef.
+rankPivot           internal            The rank of coordPivot with respect to coordRef.
+runtime             internal            Measures the solver runtime in seconds.
+runtimeLmt          30                  Stop if the solver runtime exceeds these many seconds.
+runtimeRead         internal            Runtime seconds of reading the instance file.
+seedInit            NA                  If NA, a random positive integer is created to initialize a
+seedInit            NA                  random number generator.
+solverID            internal            A string of contiguous non-space characters.
+solverMainFile      internal            The relative path of the file that contains procedure *main. 
+solverMethod        saw                 A contiguous string of non-space characters, such as saw.ant, sa, sa.saw, etc. 
+solverVersion       internal            is taken as the GMT date of the file that contains *main, e.g. 20150309155208.
+solverVersion       internal            Unless the variable aV(solverVersion) is specified under *main, a 14-digit value
+targetReached       internal            If solver returns TRUE, objective function target value has been reached.
+timeStamp           internal            A 14-digit value — the GMT date of solver invocation, e.g. 20150310163212.
+valueBest           internal            A value returned by objective function, given coordBest.
+valueInit           internal            A value returned by objective function, given coordInit.
+valuePivot          internal            A value assigned from either valueInit or valueBest.
+valueTarget         internal            Objective function target value -- solver stops on reaching this value.
+valueTol            0.0                 A coefficient to adjust valueTarget = valueTarget*(1 + valueTol) where
+valueTol            0.0                 valueTarget is read from the standardized file B.lightp.info_solutions.txt.
+varList             internal            An integer list 1, 2, 3, …, nDim, initially in the natural order.
+#walkIntervalCoef    NA                  A coefficient that determines walkIntervalLmt as walkIntervalCoef*nDim.
+#walkIntervalLmt     NA                  Inactive unless assigned an integer or if walkIntervalCoef
+#walkIntervalLmt     NA                  is assigned a real value.
+walkLength          internal            An alias of cntStep which counts the number of pivot steps during the walk.
+walkLengthLmt       2147483647          Stop if the solver reaches this value.
+#walkRepeatsLmt      NA                  Inactive unless assigned an integer. If an integer, the walk is
+#walkRepeatsLmt      NA                  monitored for repeats of valueBest. If walkRepeats > walkRepeatsLmt,
+#walkRepeatsLmt      NA                  the self-avoiding walk branches from another coordinate with valueBest.
+walkSegmCoef        NA                  A coefficient that determines walkSegmLmt as walkSegmCoef*nDim.
+walkSegmLmt         NA                  Inactive unless assigned an integer or if walkSegmCoef is assigned a real value.
+writeVar            0                   An integer variable to control levels of stdout:
+writeVar            0                   If 0, do stdout with minimum lines of text.
+writeVar            0                   If 1, do stdout of all variable values initialized under procedure *.init.
+writeVar            0                   If 2, do stdout of cntRestart trace.
+writeVar            0                   If 3, do stdout of distance=1 neighborhood probing and pivot selection.

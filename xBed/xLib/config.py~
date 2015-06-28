@@ -1,0 +1,15 @@
+aLits = None
+aAdjacent = None
+aPI = {}
+aV = {}
+aValueBest = {}
+aWalkBest = {}
+aWalk = {}
+aWalkProbed = {}
+aCoordHash0 = {}
+reqAry = {}
+optAry = {}
+optAryNames = []
+optAryNamesBool = []
+all_info = {}
+all_valu = {}
