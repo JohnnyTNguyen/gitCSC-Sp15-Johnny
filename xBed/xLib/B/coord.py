@@ -116,7 +116,7 @@ def rand(L = 41, weightFactor = None):
             coord.append(int(.5 + random.random()))
     return coord
 
-def rank(bstr = [0, 0, 0, 1, 1, 0, 1]):
+def rank(bstr = "0001101"):
     thisCmd = "B.coord.rank"
     ABOUT = """This proc takes a binary coordinate as a string such as '010101' and
         returns its weight number as the number of 'ones', which can also be

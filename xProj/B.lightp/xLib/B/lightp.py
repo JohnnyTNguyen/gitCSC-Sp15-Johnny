@@ -10,7 +10,7 @@ import util
 import core
 from config import *
 
-from math import log
+import math
 
 def main(instanceDef, args = []):
     thisCmd = "B.lightp.main"
@@ -86,7 +86,7 @@ version of {}
         print("\n{}"
             "\n.. completed initialization of all variables,"
             "\n   proceeding with the search under solverID = B.lightp.{}"
-            "\n{}\n").format("-"*78,aV["solverID"].__name__,"-"*78)
+            "\n{}\n").format("-"*78,"init","-"*78)
 
     # (2) Phase 2: proceed with the combinatorial search
     if aV["solverMethod"] == "saw":
@@ -163,31 +163,37 @@ def info(isQuery=0, infoVariablesFile = "../xLib/B.lightp.info_variables.txt"):
             "walkSegmCoef", "isSimple", "writeVar" ]
 
     print "\n".join([
-        "USAGE:\n",
-        "under TkCon shell (which has sourced ../xLib/all_python.py",
-        "\tB.lightp.main instanceFile [optional_arguments]",
+        "USAGE:",
+        "under TkCon shell (which has sourced ../xLib/all_tcl):",
+        "B.lightp.main instanceDef [optional_arguments]",
         "",
-        "under bash, invoking the 'tcl executable B.lightpT' which sources" +
-        " libraries directly",
-        "\t../xBin/B.lightpT instanceFile [optional_arguments]",
+        "under bash, invoking the 'tcl executable B.lightpT' which sources libraries directly",
+        "../xBin/B.lightpT instanceDef [optional_arguments]",
         "",
-        "under bash, invoking the 'python executable B.lightpP' which sources" +
-        " libraries directly",
-        "\t../xBin/B.lightpP instanceFile [optional_arguments]",
+        "under bash, invoking the 'python executable B.lightpP' which sources libraries directly",
+        "../xBin/B.lightpP instanceDef [optional_arguments]",
         "",
-        "under bash, invoking the 'compiled C++ code as a binary B.lightpX",
-        "\t../xBin/B.lightpX instanceFile [optional_arguments]",
+        "under bash, invoking the 'compiled C++ code as as a binary B.lightpX'",
+        "../xBin/B.lightpX  instanceDef [optional_arguments]",
+        "",
+        "EXAMPLES:",
+        "B.lightp.main     i-9-a-0  -isInitOnly",
+        "B.lightp.main     i-9-a-0  -seedInit 1215",
+        "../xBin/B.lightpT i-9-a-0  -seedInit 1215  -coordInit 101100101 -isSimple",
+        "../xBin/B.lightpP i-9-a-0  -seedInit 1215  -coordInit 101100101",
+        "../xBin/B.lightpT i-25-a-0 -seedInit 1215  -runtimeLmt 5 -isSimple",
+        "../xBin/B.lightpT i-25-a-0 -seedInit 1215  -runtimeLmt 5",
         "",
         "DESCRIPTION:",
-        "B.lightp.main, B.lightpT, B.lightpP, or B.lightpX take one REQUIRED argument",
-        "and a number of OPTIONAL arguments in any order. The most" +
-        " significant parameter,",
-        "extracted from the instanceDef is",
-        "\tnDim ... coordinate size,",
-        "\t\t\ti.e. the number of variables (columns in the square matrix)",
-        "Here is a complete list of pairs 'name defaultValue', with short",
-        "in-line descriptions:"
-    ])
+        "B.lightp.main, B.lightpT, B.lightpP, or B.lightpX take one REQUIRED argument"
+        "",
+        "instanceDef  (an instance name recognized under B.lightp/xBenchm)"
+        "",
+        "and a number of OPTIONAL arguments in any order."
+        "",
+        "Here is a complete list of 'name defaultValue' options, with short",
+        "in-line descriptions for each option:"
+        ])
 
     # create nameList and valuelist
     for name in optInfoList:
@@ -345,10 +351,10 @@ def init( instanceDef, args = [] ):
         line = line.split()
         varName = line[0]
         if varName == aV["instanceDef"]:
-            aV["instanceInit"] = int(line[1])
+            aV["instanceInit"] = line[1]
             aV["valueTarget"] = line[2]
             aV["isProven"] = line[3]
-            aV["nDim"] = len(str(aV["instanceInit"]))
+            aV["nDim"] = len(aV["instanceInit"])
             try:
                 aV["isProven"] = int(line[2].strip('-'))
             except:
@@ -418,11 +424,12 @@ def init( instanceDef, args = [] ):
         aV['rankInit'] = B.coord.rank(aV["coordInit"])
     else:
         # check if user provided coordInit is the valid length
-        aV["coordInit"] = [int(c) for c in aV["coordInit"].split(",")]
+        # aV["coordInit"] = [int(c) for c in aV["coordInit"].split(",")]
+        aV["coordInit"] = str(int(aV["coordInit"]))
         if len(aV["coordInit"]) != aV["nDim"]:
             print ("\nERROR from {}:"
                 "\nThe binary coordinate is of length {},"
-                "not the expected length {}\n").format(thisCmd, aV["coordInit"], aV["nDim"])
+                "not the expected length {}\n").format(thisCmd, len(aV["coordInit"]), aV["nDim"])
             return
         aV["rankInit"] = B.coord.rank(aV["coordInit"])
 
@@ -460,6 +467,7 @@ def init( instanceDef, args = [] ):
     aV["functionID"] = "lightp"
 
     # define solverID
+    """
     if aV["solverMethod"] == "ant" and aV["isSimple"]:
         aV["solverID"] = "ant_saw_simple"
     elif aV["solverMethod"] == "ant":
@@ -476,7 +484,7 @@ def init( instanceDef, args = [] ):
         aV["solverID"] = "sa"
     else:
         aV["solverID"] = saw
-
+    """
     # Time stamp (14-digit GMT formatting)
     aV["solverVersion"] = time.strftime("%Y %m %d %H:%M:%S")
     aV["timeStamp"] =  time.strftime("%Y%m%d%H%M%S")
@@ -523,20 +531,18 @@ def init( instanceDef, args = [] ):
     aV["isCensored"] = 0
     aV["cntRestart"] = 0
     aV["walkLength"] = aV["cntStep"]
-    aV["neighbSize"] = aV["nDim"] - 1
+    # aV["neighbSize"] = aV["nDim"] - 1
 
     # (6) Phase 6: initialize special arrays that can be selected w/ arguments
     #       from command line
-    if aV["writeVar"] >= 4:
-        aV["isSimple"] = 1
-    aValueBest[aV["valueInit"]] = [0,0,aV["coordInit"]]
-    aWalkBest[aV["valueInit"]] = [0,0,aV["coordInit"],0,0]
-
-    aWalk[aV["cntStep"]] = "{} {} {} {} {} {}".format(aV["cntStep"], aV["cntRestart"], aV["coordPivot"], aV["valuePivot"], aV["neighbSize"], aV["cntProbe"])
-
-    isPivot = 1
-    aV["rankPivot"] = B.coord.rank(aV["coordPivot"])
-    aWalkProbed[(aV["walkLength"],0)] = (aV["walkLength"], aV["cntRestart"],
+    if aV["isWalkTables"]:
+        aV["isSimple"] = true
+        isPivot = 1
+        aV["rankPivot"] = B.coord.rank(aV[coordPivot])
+        #aValueBest[aV["valueInit"]] = [0,0,aV["coordInit"]]
+        #aWalkBest[aV["valueInit"]] = [0,0,aV["coordInit"],0,0]
+        #aWalk[aV["cntStep"]] = "{} {} {} {} {} {}".format(aV["cntStep"], aV["cntRestart"], aV["coordPivot"], aV["valuePivot"], aV["neighbSize"], aV["cntProbe"])
+        aWalkProbed[(aV["walkLength"],0)] = (aV["walkLength"], aV["cntRestart"],
         aV["coordPivot"], aV["valuePivot"], aV["rankPivot"], isPivot,
         aV["neighbSize"], aV["cntProbe"])
 
@@ -652,7 +658,7 @@ def saw( Query="" ):
         # UPDATE valueBest, aValueBest
         if valueNext <= aV["valueBest"]:
             aV["valueBest"] = valueNext
-            aV["coordBest"] = coordNext[:]
+            aV["coordBest"] = coordNext
         if aV["isWalkTables"]:
             aV["coordProbedList"] = bestNeighb[3]
             aV["valueProbedList"] = bestNeighb[4]
@@ -660,17 +666,17 @@ def saw( Query="" ):
             cntNeighb = 0
             isPivot = 0
             for coordPr, valuePr in aV["coordProbedList"], aV["valueProbedList"]:
-                cntNeightb += 1
+                cntNeighb += 1
                 rankPr = P.coord.rank(coord)
                 aWalkProbed[(step,cntNeighb)] = (step, aV["cntRestart"],
                         coordPr, valuePr, rankPr, isPivot, cntNeighb, None)
             isPivot = 1
             neighbSize = cntNeighb
-            aV["rankPivot"] = P.coord.rank(coord)
+            rank = P.coord.rank(coord)
             aWalkProbed[(step,0)] = (step, aV["cntRestart"], coord, value,
                                      rank, isPivot, cntNeighb, aV["cntProbe"])
         
-        # CHECK the nighboroodSize
+        # CHECK the nighborhoodSize
         if aV["neighbSize"] == 0:
             aV["isTrapped"] = 1
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
@@ -683,7 +689,7 @@ def saw( Query="" ):
             aV["walkLength"] = step
             if aV["isWalkTables"]:
                 isPivot = 1
-                neighbSize = cntNeighb
+                #neighbSize = cntNeighb
                 rank = P.coord.rank(aV["coordBest"])
                 aWalkProbed[(step,0)] = (step, aV["cntRestart"],
                         aV["coordBest"][:], aV["valueBest"], rank, isPivot,
@@ -701,19 +707,19 @@ def saw( Query="" ):
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
             print ("WARNING from {}: isCensored=1, cntProbe={} > cntProbeLmt"
                    "={}\n".format(thisCmd, aV["cntProbe"], aV["cntProbeLmt"]))
-            break
-        if step >= walkLengthLmt:
+        
+        if step == walkLengthLmt:
             aV["isCensored"] = 1
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
             print ("WARNING from {}: isCensored=1, step={} > walkLengthLmt"
                    "={}\n".format(thisCmd, step, walkLengthLmt))
-            break
+
         if aV["runtime"] > runtimeLmt:
             aV["isCensored"] = 1
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
             print ("WARNING from {}: isCensored=1, runtime={} > runtimeLmt"
                    "={}\n".format(thisCmd, aV["runtime"], aV["runtimeLmt"]))
-            break
+            
 
     if aV["valueBest"] == valueTarget:
         aV["targetReached"] = 1
@@ -889,7 +895,7 @@ def saw_pivot(coordPiv=[1,0,1,0,1,0], valuePiv="NA"):
         print aValueAdj
         print aCoordHash0
     
-    valueOrderedList = aValueAdj[:]
+    valueOrderedList = aValueAdj.keys()
     valueOrderedList.sort()
     
     isBestFound = False
@@ -909,7 +915,179 @@ def saw_pivot(coordPiv=[1,0,1,0,1,0], valuePiv="NA"):
 
     return (coordBest, valueBest, neighbSize)
 
-def patterns(instanceInit = [1, 1, 0, 1, 0, 0]):
+def patterns(instanceInit="110100", isDebug=0):
+    thisCmd="B.lightp.patterns"
+    sandbox="B.lightp"
+    ABOUT=(
+        "\nUSAGE:    {}(\"instanceInit\", isDebug=0)"
+        "\n"
+        "\nEXAMPLE:  {}(\"110100\")"
+        "\n{}(\"110100\",  1)"
+        "\n"
+        "\nThe command {} takes a binary coordinate 'instanceInit' of length L"
+        "\nwhich defines the initial configuration of the 'lights-out puzzle' under"
+        "\nthe sandbox {}.  The command initializes and returns the associate"
+        "\narray mP(i,j,k) that not only represents the initial state of the puzzle"
+        "\nbut also the well-defined patterns of L binary matrices that represent"
+        "\nnon-trivial constraints defined for this puzzle."
+        "\nFor details, see the interactive 'Lights Out Puzzle Solver' under"
+        "\nhttp://www.ueda.info.waseda.ac.jp/~n-kato/lightsout/"
+        "\n"
+        "\nFor a stdout query, use one of these these commands:"
+        "\n{}  ??  (under a tcl shell or a python shell)".format(thisCmd, thisCmd, thisCmd, thisCmd, sandbox, thisCmd))
+
+    if instanceInit == "??":
+        print ABOUT
+        return
+    if instanceInit == "?":
+        print "Valid query is '{} ??'".format(thisCmd)
+        return
+
+    # compute the number of rows (M) and columns (N) in each of L matrices
+    L = len(instanceInit)
+    M = int(math.floor(math.sqrt(L)))
+    N = int(math.ceil(math.sqrt(L)))
+
+    # In our schema below, the L matrices are indexed by k=(0, 1, 2, ..., L-1)
+    # and arranged in M*N grid
+    #
+    #        k=0[---]          k=1[---]          k=2[---] .....       k=N-1[---]
+    #  ...
+    #  ...
+    #  k=M*(N-1)[---]  k=M*(N-1)+1[---]  k=M*(N-1)+2[---] ..... k=(M*N - 1)[---]
+    #
+
+    if L != M * N:
+        print """
+            ERROR from B.lightp.patterns:
+            .. value of L=$L does not factor correctly into  M*N=[expr {$M * $N}]
+            .. values of L that would factor correctly are indicated below
+                4 6 9 12 16 20 25 30 36 42 49 56 64 72 ...."
+            """
+        return
+
+    # use instanceInit to initialize mP($i,$j,-1):
+    # i.e. the 0-1 matrix selected by random choice or by the user.
+    mP = [[[0 for k in xrange(-1, L)] for j in xrange(N)] for i in xrange(M)]
+
+    # print mP
+
+    for i in range(M):
+        for j in range(N):
+            k = i * N + j
+            mP[i][j][-1] = int(instanceInit[k])
+
+    # initialize to value of 0 each of L matrices
+    #for k in range(L):
+    #    for i in range(M):
+    #        for j in range(N):
+    #            mP[i][j][k] = 0
+
+    kkMax=L*L
+    # initialize the counter variables
+    k = -1
+    mRow = 0
+
+    i=-1
+    j=0
+    k=-1
+
+    # assign values of 1 at locations specified for each of L matrices
+    for kk in range(kkMax):
+        if (kk%L) == 0:
+            k += 1
+            i = -1# initialize the row counter for each of L matrices
+        
+        # increment the row counter for each of L matrices
+        if (kk%N) == 0:
+            i += 1
+
+        # increment the column counter for each of L matrices
+        j = kk%N
+    
+        # periodically, increment the row counter for each group of N matrices
+        if (kk%(L*N)) == 0:
+            mRow += 1
+
+        if mRow == 1:
+            #puts mRow=$mRow...row=$i,col=$j,k=$k
+            # case for the left-most matrix of the top row
+            if cmp([i, j, k], [0, 0, 0]) == 0:
+                mP[0][0][k] = 1
+                mP[0][1][k] = 1
+                mP[1][0][k] = 1
+            # case for the right-most matrix of the top row
+            if cmp([i, j, k], [0, N-1, N-1]) == 0:
+                mP[0][N-1][k] = 1
+                mP[0][N-2][k] = 1
+                mP[1][N-1][k] = 1
+            # case for matrices in the middle of the top row
+            for col in range(1,N-1):
+                if cmp([i,j,k], [0,col,col]) == 0:
+                    mP[i][j][k]=1
+                    mP[i][j-1][k]=1
+                    mP[i][j+1][k]=1
+                    mP[i+1][j][k]=1
+
+        elif mRow == M:
+            #puts mRow=$mRow...row=$i,col=$j,k=$k
+            # case for the left-most matrix of the bottom row
+            if cmp([i, j, k], [M-1, 0, L-N]) == 0:
+                mP[M-1][0][k] = 1
+                mP[M-1][1][k] = 1
+                mP[M-2][0][k] = 1
+            # case for the right-most matrix of the bottom row
+            if cmp([i, j, k], [M-1, N-1, L-1]) == 0:
+                mP[M-1][N-1][k] = 1
+                mP[M-1][N-2][k] = 1
+                mP[M-2][N-1][k] = 1
+            # case for matrices in the middle of the bottom row
+            for col in range(1,N-1):
+                if cmp([i,j,k], [M-1,col,L-N+col]) == 0:
+                    mP[i][j][k]=1
+                    mP[i][j-1][k]=1
+                    mP[i][j+1][k]=1
+                    mP[i-1][j][k]=1
+                    
+        else:
+            # case for group of middle matrices in the left-most column
+            for row in range(1,M-1):
+                if cmp([i,j,k],[row,0,N*row]) == 0:
+                    mP[i][j][k] = 1
+                    mP[i+1][j][k] = 1
+                    mP[i-1][j][k] = 1
+                    mP[i][j+1][k] = 1
+            
+            # case for group of middle matrices in the right-most column
+            for row in range(1,M-1):
+                if cmp([i, j, k], [row, N-1, N*(row+1) - 1]) == 0:
+                    mP[i][j][k] = 1
+                    mP[i+1][j][k] = 1
+                    mP[i-1][j][k] = 1
+                    mP[i][j-1][k] = 1
+                
+            # case for group of middle matrice between left/right columns and top/bottoms rows
+            for row in range(1,M-1):
+                for col in range(1,N-1):
+                    if cmp([i,j,k], [row,col,N*(row) + col]) == 0:
+                        mP[i][j][k]=1
+                        mP[i+1][j][k]=1
+                        mP[i-1][j][k]=1
+                        mP[i][j-1][k]=1
+                        mP[i][j+1][k]=1
+
+    if isDebug:
+        for k in range(L):
+            print "k = " + str(k)
+            for i in range(M):
+                row=[]
+                for j in range(N):
+                    row.append(mP[i][j][k])
+                print row
+                                 
+    return [M, N, mP]
+
+def patterns_OLD(instanceInit = "110100"):
     thisCmd="B.lightp.patterns"
     ABOUT="""This proc takes ... ."""
     L = len(instanceInit)
@@ -1227,6 +1405,8 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
     # instance global variables
     global aStruc
 
+    print "sdfjskflsj"
+
     M = aV["M"]
     N = aV["N"]
     L = aV["nDim"]
@@ -1240,6 +1420,9 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
             mAdd[i][j] = 0
 
     for k in range(L):
+        print k
+        print coordPiv
+        print L
         isAsserted = int(coordPiv[k])
         if isAsserted:
             for i in range(M):
@@ -1265,7 +1448,8 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
     
     for k in range(L):
         bit = coordPiv[k]
-        coordAdj = coordPiv[:]
+        coordAdj = map(int, list(coordPiv))
+        #print coordAdj
         if bit:
             coordAdj[k] = 0
         else:
@@ -1276,6 +1460,9 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
                 mAdj[i][j] = (mTot[i][j] + aStruc[i][j][k]) % 2
                 valueAdj = valueAdj + mAdj[i][j]
         aCoordAdj[str(coordAdj)] = valueAdj
+        if not aValueAdj.has_key(str(valueAdj)):
+            aValueAdj[str(valueAdj)] = []
+    
         aValueAdj[str(valueAdj)].append(coordAdj)
     
     aV["cntProbe"] += 1
@@ -1291,18 +1478,25 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
 
 def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     thisCmd = "B_lightp.exhA"
-    ABOUT="""This proc takes a binary coordinate instanceInit that defines the initial"
-           "configuration of lights-out in the puzzle under the sandbox B.lightp."
-           "It then performs an exhaustive evaluation for function values"
-           "defined by instanceInit and returns the minimum value solutions as a list"
-           "of coordinate:value pairs. A rank value (in context of the"
-           "underlying Hasse graph) is also associated with each coordinate. For"
-           "coordinate lengths of size <= 6, the procedure returns the exhaustive"
-           "solution set and a data structure that can be passed on to a follow-up tcl"
-           "procedure B.lightp.hasse which creates a file of vertices and a file of edges"
-           "annotated with x-y coordinates for plotting of Hasse graphs under R."
-           "A special case is induced when instanceInit = 000....000 (all zeros):"
-           "this induces SAWs that may create a trapped pivot in Hasse graphs."""
+    sandbox = "B.lightp"
+    ABOUT=(
+           "\nUSAGE:    {}(instanceInit)"
+           "\n"
+           "\nEXAMPLE:  {}(110100)"
+           "\n"
+           "\nThe command {} takes a binary coordinate 'instanceInit' of length L"
+           "\nwhich defines the initial configuration of the 'lights-out puzzle' under"
+           "\nthe sandbox {}. A simple procedure generates a ranked list of"
+           "\n2^L binary coordinates to perform an  exhaustive evaluation of the"
+           "\n'light-out puzzle' instance as defined by instanceInit; it also returns the"
+           "\nminimum value solutions as a list of coordinate:value pairs. The rank of each"
+           "\ncoordinate is associated with the Hasse graph representation of the puzzle"
+           "\ninstance. For coordinates of lengths L <= 6, the procedure also returns"
+           "\na data structure for the follow-up tcl command B.lightp.hasse which creates"
+           "\nfiles of vertices and edges for plotting, under R, of SAWs (self-avoiding"
+           "\nwalks) in Hasse graphs. For a special case with instanceInit = 000....000"
+           "\n(all zeros in the binary string), the self-avoiding walk may demonstrate"
+           "\na walk terminated due to a 'trapped pivot'.".format(thisCmd, thisCmd, thisCmd, sandbox))
     
     L = len(instanceInit)
     rList = patterns(instanceInit)
@@ -1401,25 +1595,28 @@ def exhB(instanceInit = 110100):
     global hasse
     thisCmd =  "B.lightp.exhB"
     sandbox = "B.lightp"
-    ABOUT = """
-Example:        B.lightp.exhB 110100 (under python)
-        ../xBin/B.lightp.exhB 110100 (under bash)
-
-This command B.lightp.exhB takes a binary coordinate instanceInit of length L that defines the
-initial configuration of lights-out in the puzzle under the sandbox B.lightp.
-The procedure iteratively generates 2^L binary coordinates to perform an
-exhaustive evaluation of the 'lightout puzzle puzzle' instance which is
-specified by the value of instanceInit. The principle behind this coordinate
-generation is repeated re-use of the associative array aCoordHash0. Given
-this array, the generation proceeds from all coordinates at rank k to all
-coordinates at rank k+1. The value of k is in the range \[0, L\]. The
-exhaustive evaluation includes comprehensive instrumentation to measure the
-computational cost and the efficiency of the procedure.
-        
-For a stdout query, use one of these these commands:
-        B.lightp.exhB  ??  (after running the file all_tcl under python)
-    ../xBin/B.light.exhBB  (immediately executable under bash)
-"""
+    ABOUT =(
+        "\nUSAGE:           {} instanceInit"
+        "\n"
+        "\nEXAMPLE:         {} 001001011 (under tclsh **OR** python shell)"
+        "\n../xBin/B.lightp.exhBT 001001011 (tcl    executable under bash)"
+        "\n../xBin/B.lightp.exhBP 001001011 (python executable under bash)"
+        "\n"
+        "\nThe command {} takes a binary coordinate 'instanceInit' of length L"
+        "\nwhich defines the initial configuration of lights-out in the puzzle under"
+        "\nthe sandbox {}.  An iterative procedure generates a ranked list of"
+        "\n2^L binary coordinates to perform an  exhaustive evaluation of the"
+        "\n'light-out puzzle' instance as defined by instanceInit. The principle behind"
+        "\nthe iterative coordinate generation is re-use of the associative array"
+        "\naCoordHash0. Given this array, the generation proceeds from"
+        "\nall coordinates at rank k to all coordinates at rank k+1. The value of k is"
+        "\nin the range [0, L]. The exhaustive evaluation includes comprehensive"
+        "\ninstrumentation to measure the computational cost and the efficiency of the"
+        "\nprocedure."
+        "\n"
+        "\nFor a stdout query, use one of these these commands:"
+        "\n{}  ??  (sourced under tclsh)"
+        "\n../xBin/B.lightp.exhBT     (executable under bash)".format(thisCmd, thisCmd, thisCmd, sandbox, thisCmd))
    
     if instanceInit == "??":
         print ABOUT

@@ -1,3 +1,5 @@
+import pprint
+
 def table_info_variables( fileName="../../../xBed/xLib/util_data/B.lightp.info_variables.txt" ):
     ABOUT = (
         "This proc takes a file *info_variables.txt and returns two "
@@ -33,6 +35,10 @@ def table_info_variables( fileName="../../../xBed/xLib/util_data/B.lightp.info_
             all_valu[varName] = varDefault
 
     return (all_info, all_valu)
+
+def prettyPrint(object):
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(object)
 
 if __name__ == "__main__":
     table_info_variables("B.lightp.info_variables.txt")
