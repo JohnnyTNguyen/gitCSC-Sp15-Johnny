@@ -12,7 +12,7 @@ from config import *
 
 import math
 
-def main(instanceDef, args = []):
+def main( instanceDef, args = [] ):
     thisCmd = "B.lightp.main"
     ABOUT = """
 Proc {} takes a variable number of arguments: 'instanceDef' as the
@@ -53,7 +53,8 @@ version of {}
     global aCoordHash0
     global aWalkProbed
     
-    #!! (1) Phase 1: query about commandLine **OR** initialize all variables
+    #!! (1) Phase 1: query about commandLine **OR**
+    #           initialize all variables
     if instanceDef == "?":
         # read solver domain table and return query about commandLine
         info(1, all_info("infoVariablesFile"))
@@ -66,9 +67,9 @@ version of {}
         return
     elif aV["isInitOnly"]:
         print ("\n{}"
-            "\n.. completed initialization of all variables,"
+            "\n.. completed initialization of all variables under {},"
             "\n   exiting the solver since option -{} has been asserted."
-            "\n{}\n".format("-"*78,aV["isInitOnly"],"-"*78))
+            "\n{}\n".format("-"*78,aV["isInitOnly"],thisCmd,"-"*78))
         print "targetReached coordInit valueInit = {}\n".format(rList)
         for key, value in aV.items():
             print "aV({}) = {}".format(key,value)
@@ -83,10 +84,10 @@ version of {}
             print "aWalkProbed({}) = {}".format(key,value)
         return
     else:
-        print("\n{}"
-            "\n.. completed initialization of all variables,"
-            "\n   proceeding with the search under solverID = B.lightp.{}"
-            "\n{}\n").format("-"*78,"init","-"*78)
+        print("# {}"
+            "\n# .. completed initialization of all variables under {},"
+            "\n# .. proceeding with the search under solverID = B.lightp.{}"
+            "\n# {}").format("-"*78,thisCmd,aV["solverMethod"],"-"*78)
 
     # (2) Phase 2: proceed with the combinatorial search
     if aV["solverMethod"] == "saw":
@@ -94,8 +95,8 @@ version of {}
     else:
         print "\nERROR from {}:\nsolverMethod = {} is not implemented\n".format(thisCmd, aV["solverMethod"])
         return
-    print "#    Proceeding with the search under solverID = B.lightp.{}".format(aV["solverID"].__name__)
-    print "#"*78
+    #print "#    Proceeding with the search under solverID = B.lightp.{}".format(aV["solverID"].__name__)
+    #print "#"*78
     aV["solverID"]()
     
     stdout()
@@ -277,6 +278,7 @@ def init( instanceDef, args = [] ):
     # solver global variables
     global aWalkProbed
     global aValueBest
+    global aCoordHash0
 
     argsOptions = args
 
@@ -291,7 +293,7 @@ def init( instanceDef, args = [] ):
     aWalkProbed = {}
 
     print "\n".join([
-        "# ** from: {}:".format(thisCmd),
+        "# FROM: {}:".format(thisCmd),
         "# instanceDef={}".format(instanceDef),
         "# argsOptions={}".format(argsOptions)
         ])
@@ -355,10 +357,15 @@ def init( instanceDef, args = [] ):
             aV["valueTarget"] = line[2]
             aV["isProven"] = line[3]
             aV["nDim"] = len(aV["instanceInit"])
-            try:
-                aV["isProven"] = int(line[2].strip('-'))
-            except:
-                aV["isProven"] = False
+            aV["instanceDim"] = aV["nDim"]
+            aV["coordRef"] = "0" * aV["nDim"]
+            aV["varList"] = []
+            for i in range(1, aV["nDim"] + 1):
+                aV["varList"].append(i)
+            #try:
+            #   aV["isProven"] = int(line[2].strip('-'))
+            #except:
+            #   aV["isProven"] = False
             isFound = True
         if isFound:
             break
@@ -383,7 +390,10 @@ def init( instanceDef, args = [] ):
             name = tmpList[0].strip("-")
             if name in namesOptional:
                 try:
-                    aV[name] = float(tmpList[1])
+                    if name == "coordInit":
+                        aV[name] = tmpList[1]
+                    else:
+                        aV[name] = float(tmpList[1])
                 except:
                     aV[name] = tmpList[1]
                 tmpList = tmpList[2:]
@@ -418,14 +428,14 @@ def init( instanceDef, args = [] ):
                     "not -seedInit {}\n".format(thisCmd, aV['seedInit']))
             return
     # initialize random binary coordinate
-    if aV["coordInit"] == None:
+    if aV["coordInit"] == "NA":
         # generate a random permutation coordinate
         aV['coordInit'] = B.coord.rand(aV["nDim"])
         aV['rankInit'] = B.coord.rank(aV["coordInit"])
     else:
         # check if user provided coordInit is the valid length
-        # aV["coordInit"] = [int(c) for c in aV["coordInit"].split(",")]
-        aV["coordInit"] = str(int(aV["coordInit"]))
+        aV["coordInit"] = map(int, aV["coordInit"])
+        #aV["coordInit"] = str(aV["coordInit"])
         if len(aV["coordInit"]) != aV["nDim"]:
             print ("\nERROR from {}:"
                 "\nThe binary coordinate is of length {},"
@@ -435,9 +445,9 @@ def init( instanceDef, args = [] ):
 
     if aV["walkSegmLmt"] == "NA" and aV["walkSegmCoef"] != "NA":
         try:
-            walkSegmCoef = float(aV["walkSegmCoef"])
+            walkSegmCoef = int(aV["walkSegmCoef"])
             if walkIntevalCoef > 0.:
-                aV["walkSegmLmt"] = int(walkSegmCoef * aV["nDim"])
+                aV["walkSegmLmt"] = float(walkSegmCoef * aV["nDim"])
                 aV["walkSegmCoef"] = walkSegmCoef
         except:
             print ("\nERROR from {}:"
@@ -467,7 +477,7 @@ def init( instanceDef, args = [] ):
     aV["functionID"] = "lightp"
 
     # define solverID
-    """
+
     if aV["solverMethod"] == "ant" and aV["isSimple"]:
         aV["solverID"] = "ant_saw_simple"
     elif aV["solverMethod"] == "ant":
@@ -484,7 +494,7 @@ def init( instanceDef, args = [] ):
         aV["solverID"] = "sa"
     else:
         aV["solverID"] = saw
-    """
+
     # Time stamp (14-digit GMT formatting)
     aV["solverVersion"] = time.strftime("%Y %m %d %H:%M:%S")
     aV["timeStamp"] =  time.strftime("%Y%m%d%H%M%S")
@@ -509,13 +519,12 @@ def init( instanceDef, args = [] ):
     # initialize associated variables for initial probe
     aV["runtime"] = microSecs
     aV["cntProbe"] = 1
-    aV["neighbSize"] = aV["nDim"]
     aV["cntStep"] = 0
+    aV["neighbSize"] = aV["nDim"]
     aV["coordPivot"] = aV["coordInit"]
-    aV["coordBest"] = aV["coordInit"]
     aV["valuePivot"] = aV["valueInit"]
+    aV["coordBest"] = aV["coordInit"]
     aV["valueBest"] = aV["valueInit"]
-    aCoordHash0= {}
     aCoordHash0[tuple(aV["coordInit"])] = []
 
     # (4) Phase 4: check if valueTarget has been reached, return to main if > 0
@@ -536,9 +545,9 @@ def init( instanceDef, args = [] ):
     # (6) Phase 6: initialize special arrays that can be selected w/ arguments
     #       from command line
     if aV["isWalkTables"]:
-        aV["isSimple"] = true
+        aV["isSimple"] = 1
         isPivot = 1
-        aV["rankPivot"] = B.coord.rank(aV[coordPivot])
+        aV["rankPivot"] = B.coord.rank(aV["coordPivot"])
         #aValueBest[aV["valueInit"]] = [0,0,aV["coordInit"]]
         #aWalkBest[aV["valueInit"]] = [0,0,aV["coordInit"],0,0]
         #aWalk[aV["cntStep"]] = "{} {} {} {} {} {}".format(aV["cntStep"], aV["cntRestart"], aV["coordPivot"], aV["valuePivot"], aV["neighbSize"], aV["cntProbe"])
@@ -558,7 +567,6 @@ def init( instanceDef, args = [] ):
     if len(errorItems) > 0:
         print "\nWarning from {}\n{}".format(thisCmd, errorLines)
         print "Missing variables\n{}\n".format(errorItems)
-
     # (8) Phase 8: check whether coordInit caused targetReached to be > 1
     if aV["targetReached"] > 0:
         print "# BINGO: valueTarget has been reached or exceeded with coordInit"
@@ -625,7 +633,7 @@ def saw( Query="" ):
         procPivotNext = saw_pivot_simple
     else:
         procPivotNext = saw_pivot
-    print "# FROM: {}, searching for pivotBest via {}".format(thisCmd,
+    print "# FROM: {}, searching for pivotBest via B.lightp.{}**".format(thisCmd,
             procPivotNext.__name__)
     # auxiliary variables
     aV["coordBest"] = aV["coordInit"][:]
@@ -641,7 +649,6 @@ def saw( Query="" ):
         
         # PROBE neighborhood of current pivot
         bestNeighb = procPivotNext(coord, value)
-        
         # SELECT next pivot
         coordNext = bestNeighb[0]
         valueNext = bestNeighb[1]
@@ -662,7 +669,6 @@ def saw( Query="" ):
         if aV["isWalkTables"]:
             aV["coordProbedList"] = bestNeighb[3]
             aV["valueProbedList"] = bestNeighb[4]
-            
             cntNeighb = 0
             isPivot = 0
             for coordPr, valuePr in aV["coordProbedList"], aV["valueProbedList"]:
@@ -683,7 +689,6 @@ def saw( Query="" ):
             print ("WARNING from {}: isTrapped=1, neighbSize={} ..."
                    "no free adjacent coordinates...".format(thisCmd, neighbSize))
             break
-
         if aV["valueBest"] <= valueTarget:
             step += 1
             aV["walkLength"] = step
@@ -707,19 +712,19 @@ def saw( Query="" ):
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
             print ("WARNING from {}: isCensored=1, cntProbe={} > cntProbeLmt"
                    "={}\n".format(thisCmd, aV["cntProbe"], aV["cntProbeLmt"]))
-        
+            break
         if step == walkLengthLmt:
             aV["isCensored"] = 1
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
             print ("WARNING from {}: isCensored=1, step={} > walkLengthLmt"
                    "={}\n".format(thisCmd, step, walkLengthLmt))
-
+            break
         if aV["runtime"] > runtimeLmt:
             aV["isCensored"] = 1
             aV["speedProbe"] = int(aV["cntProbe"]/aV["runtime"])
             print ("WARNING from {}: isCensored=1, runtime={} > runtimeLmt"
                    "={}\n".format(thisCmd, aV["runtime"], aV["runtimeLmt"]))
-            
+            break
 
     if aV["valueBest"] == valueTarget:
         aV["targetReached"] = 1
@@ -745,25 +750,27 @@ def stdout( withWarning = 1 ):
     global all_value
     global aV
              
-    print ("# \n# FROM {}: A SUMMARY OF NAME-VALUE PAIRS"
+    print ("# FROM {}: A SUMMARY OF NAME-VALUE PAIRS"
             "\n# commandLine = {}"
-            "\n#    dateLine = {}"
+            "\n\n#    dateLine = {}"
             "\n#   timeStamp = {}"
             "\n#".format(thisCmd, aV["commandLine"], aV["dateLine"], aV["timeStamp"]))
              
     stdoutNames = ("instanceDef", "instanceInit", "solverID", "solverMethod", "isSimple",
                     "coordInit", "coordBest", "nDim",
                     "walkLengthLmt", "walkLength", "cntRestartLmt", "cntRestart",
-                    "cntProbeLmt", "cntProbe", "runtimeLmt", "runtime", "runtimeRead", "sppedProbe", "hostID",
+                    "cntProbeLmt", "cntProbe", "runtimeLmt", "runtime", "runtimeRead", "speedProbe", "hostID",
                     "compiler", "walkSegmLmt", "walkSegmCoef", "seedInit", "valueInit",
                     "valueBest", "valueTarget", "valueTol", "targetReached", "isCensored")
              
     for name in stdoutNames:
         if name in aV:
-            if name != "solverID":
-                print "{}\t\t{}".format(name, aV[name])
-            else:
+            if name == "solverID":
                 print "{}\t\tB.lightp.{}".format(name, aV[name].__name__)
+            elif name == "coordInit" or name == "coordBest":
+                print "{}\t\t".format(name) + ''.join(imap(str, aV[name]))
+            else:
+                print "{}\t\t{}".format(name, aV[name])
         else:
             if withWarning:
                 print "# WARNING: no value exist for {}".format(name)
@@ -788,13 +795,18 @@ def saw_pivot_simple(coordPiv = [1, 1, 1, 1, 0, 1], valuePiv = 3):
     global aCoordHash0
     global aWalkedProbed
 
+    try:
+        aV["writeVar"] = int(aV["writeVar"])
+    except:
+        print "writeVar is not an int"
+
     coordBest = "NA"
-    valueBest = sys.maxint
-    valueProbedList = []
-    neighbSize = 0
     coordBestList = []
+    valueProbedList = []
     coordProbedList = []
-    aV['cntProbe'] = 0
+    valueBest = 2147483641
+    neighbSize = 0
+    #aV['cntProbe'] = 0
     
     # We take coordPivot and flip the bit from left-to-right,
     # while also extracting neighbor with local valueBest.
@@ -810,6 +822,7 @@ def saw_pivot_simple(coordPiv = [1, 1, 1, 1, 0, 1], valuePiv = 3):
         + str(coordPiv)
         + "\ncntProbe\tIdx\tcoordPivot\tvalPivot\tcoordAdj\tvalAdj\tdist\trank\n~\t~\t"
         + str(coordPiv) + "\t" + str(valuePiv) + "\t~\t~\t" + str(distance) + "\t" + str(rank) + "\n"
+    
     for var in aV['varList']:
         i = var - 1
         coordAdj = coordPiv[:]
@@ -819,12 +832,14 @@ def saw_pivot_simple(coordPiv = [1, 1, 1, 1, 0, 1], valuePiv = 3):
             coordAdj[i] = 1
         ##!! To maintain a self-avoiding walk, coordinates from the walk
         ##!! should be excluded from the neighborhood of the current pivot.
-        #parray aCoordHash0
         if tuple(coordAdj) not in aCoordHash0:
             neighbSize += 1
-            rList = f(coordAdj, aV['coordInitF'])
+            rList = [f(coordAdj)]
             valueAdj = rList[0]
             aV['cntProbe'] += 1
+            if aV["isWalkTables"]:
+                coordProbedList.append(str(coordAdj))
+                valueProbedList.append(valueAdj)
             #!! aggregate coordBestList for random selection later
             if valueAdj <= valueBest:
                 if valueAdj < valueBest:
@@ -840,13 +855,12 @@ def saw_pivot_simple(coordPiv = [1, 1, 1, 1, 0, 1], valuePiv = 3):
         print rowLines + "--neighbSize=" + str(neighbSize);
     
     #!! randomize the choice of coordBest from coordBestList
-    idx = int(random.random()*len(coordBestList))
-    coordBest = coordBestList[idx]
-
-    if neighbSize > 0:
-        return str(coordBest) + " " + str(valueBest) + " " + str(neighbSize) + " " + str(coordProbedList) + " " + str(valueProbedList)
+    idx = int(len(coordBestList)*random.random())
+    if len(coordBestList) > 0:
+        coordBest = coordBestList[idx]
     else:
-        return "NA NA neighbSize {} {}"
+        coordBest = None
+    return (coordBest, valueBest, neighbSize, coordProbedList, valueProbedList)
 
 def saw_pivot(coordPiv=[1,0,1,0,1,0], valuePiv="NA"):
     thisCmd = "B.lightp.saw.pivot"
@@ -886,7 +900,7 @@ def saw_pivot(coordPiv=[1,0,1,0,1,0], valuePiv="NA"):
     M = aV["M"]
     N = aV["N"]
     L = aV["nDim"]
-    
+
     rList = fAdj(coordPiv)
     valuePiv = rList[0]
     aValueAdj = rList[1]
@@ -901,21 +915,21 @@ def saw_pivot(coordPiv=[1,0,1,0,1,0], valuePiv="NA"):
     isBestFound = False
     neighbSize = aV["neighbSize"]
     for value in valueOrderedList:
-        for coord in aValueAdj:
+        random.shuffle(aValueAdj[value])
+        for coord in aValueAdj[value]:
             if tuple(coord) not in aCoordHash0:
                 coordBest = coord
                 valueBest = value
                 isBestFound = True
             if isBestFound:
-                break;
+                break
             else:
                 neighbSize -= 1
         if isBestFound:
             break
-
     return (coordBest, valueBest, neighbSize)
 
-def patterns(instanceInit="110100", isDebug=0):
+def patterns(instanceInit=[1, 1, 0, 1, 0, 0], isDebug=0):
     thisCmd="B.lightp.patterns"
     sandbox="B.lightp"
     ABOUT=(
@@ -1324,7 +1338,7 @@ def f(coord = [1, 0, 1, 0, 1, 0]):
         
     fVal = 0
     isTestOnly = 0
-    if aV['valueTarget'] == -1:
+    if aV.has_key('valueTarget') and aV['valueTarget'] == -1:
         return fVal
     #if isTestOnly:
     #instanceDef = [3, 3]
@@ -1350,7 +1364,6 @@ def f(coord = [1, 0, 1, 0, 1, 0]):
             for j in range(1, N):
                 row.append(mAdd[i][j])
                 #print(row)
-
     # compute the mod-2 sum of all asserted matrix patterns
     for k in range(L):
         isAsserted = coord[k]
@@ -1360,7 +1373,7 @@ def f(coord = [1, 0, 1, 0, 1, 0]):
                 for j in range(N):
                     mAdd[i][j] = (mAdd[i][j] + aStruc[i][j][k]) % 2
                     #print("k=" + str(k))
-            for i in range(M):
+            for i in range(M) :
                 row = []
                 for j in range(N):
                     row.append(mAdd[i][j])
@@ -1379,7 +1392,7 @@ def f(coord = [1, 0, 1, 0, 1, 0]):
         for j in range(N):
             val = (mInit[i][j] + mAdd[i][j]) % 2
             fVal += val
-            #print("coord_value_pair = " + str(coord) + ":" + str(fVal))
+    #print("coord_value_pair = " + str(coord) + ":" + str(fVal))
     return fVal
 
 def fAdj(coordPiv = [1,0,1,0,1,0]):
@@ -1405,8 +1418,6 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
     # instance global variables
     global aStruc
 
-    print "sdfjskflsj"
-
     M = aV["M"]
     N = aV["N"]
     L = aV["nDim"]
@@ -1420,10 +1431,7 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
             mAdd[i][j] = 0
 
     for k in range(L):
-        print k
-        print coordPiv
-        print L
-        isAsserted = int(coordPiv[k])
+        isAsserted = coordPiv[k]
         if isAsserted:
             for i in range(M):
                 for j in range(N):
@@ -1448,7 +1456,7 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
     
     for k in range(L):
         bit = coordPiv[k]
-        coordAdj = map(int, list(coordPiv))
+        coordAdj = coordPiv[:]
         #print coordAdj
         if bit:
             coordAdj[k] = 0
@@ -1459,11 +1467,11 @@ def fAdj(coordPiv = [1,0,1,0,1,0]):
             for j in range(N):
                 mAdj[i][j] = (mTot[i][j] + aStruc[i][j][k]) % 2
                 valueAdj = valueAdj + mAdj[i][j]
-        aCoordAdj[str(coordAdj)] = valueAdj
-        if not aValueAdj.has_key(str(valueAdj)):
-            aValueAdj[str(valueAdj)] = []
+        aCoordAdj[tuple(coordAdj)] = valueAdj
+        if not aValueAdj.has_key(valueAdj):
+            aValueAdj[valueAdj] = []
     
-        aValueAdj[str(valueAdj)].append(coordAdj)
+        aValueAdj[valueAdj].append(coordAdj)
     
     aV["cntProbe"] += 1
     if aV["writeVar"] == 3:
@@ -1497,18 +1505,21 @@ def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
            "\nwalks) in Hasse graphs. For a special case with instanceInit = 000....000"
            "\n(all zeros in the binary string), the self-avoiding walk may demonstrate"
            "\na walk terminated due to a 'trapped pivot'.".format(thisCmd, thisCmd, thisCmd, sandbox))
+    global all_info
+    global all_valu
+    global aV
+    global aStruc
+    aV = {}
+    aStruc = {}
+           
+    if isinstance(instanceInit, int):
+            instanceInit = map(instanceInit, int)
     
     L = len(instanceInit)
     rList = patterns(instanceInit)
     M = rList[0]
     N = rList[1]
     aStruc = rList[2]
-    #print(str(aStruc))
-
-    if len(rList) == 4 and rList[3] == 0:
-        aV['valueTarget'] = -1
-    else:
-        aV['valueTarget'] = None
 
     aV['M'] = M
     aV['N'] = N
@@ -1521,7 +1532,6 @@ def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     aV['varList'] = []
     for i in range(1, L):
         aV['varList'].append(i)
-    #print(aV)
     #return
 
     coordList = []
@@ -1540,13 +1550,11 @@ def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     bestRank = 0
     
     for coord in coordList:
-        #print("Coord: " + str(coord))########################
         value = f(coord)
-        #print("value = " + str(value)) 
         rank = B.coord.rank(coord)
         if not hasseAry.has_key(rank):
             hasseAry[rank] = []
-            hasseAry[rank].append(str(coord) + ":" + str(int(value)))
+        hasseAry[rank].append(str(coord) + ":" + str(int(value)))
 
         #hasseAry.get(rank, default = []).append(coord)
         #hasseAry[rank].append(coord)
@@ -1588,7 +1596,7 @@ def exhA(instanceInit = [1, 1, 0, 1, 0, 0]):
     else:
         return
 
-def exhB(instanceInit = 110100):
+def exhB(instanceInit = [1, 1, 0, 1, 0, 0]):
     global aStruc
     global aV
     global aCoordHash
@@ -1625,6 +1633,9 @@ def exhB(instanceInit = 110100):
         print ("Valid query is '{} ??'").format(thisCmd)
         return
     
+    if isinstance(instanceInit, basestring):
+        instanceInit = map(int, instanceInit)
+
     #-- initialize all matrix patterns
     L = len(instanceInit)
     rList = patterns(instanceInit)
@@ -1647,12 +1658,12 @@ def exhB(instanceInit = 110100):
 
     # For each rank, unset aCoordHash0 before aggregating coordList1
     # then probe B.lightp.f for function value
-    aCoordHash = {}
+    aCoordHash0 = {}
     coordList1 = []
     runtimeCoord = 0.0
     runtimeProbe = 0.0
     if L <= 5:
-        hasseVertices = {(0,1): [",".join(imap(str,coordRef)) + ":" + str(value)] }
+        hasseVertices = {(0,1): ["".join(imap(str,coordRef)) + ":" + str(value)] }
 
     sizeRank = 0
 
@@ -1672,8 +1683,8 @@ def exhB(instanceInit = 110100):
                 else:
                     coordAdj[k] = 1
                 weight = B.coord.rank(coordAdj)
-                if weight == rank and not (",".join(imap(str,coordAdj)) in aCoordHash):
-                    aCoordHash[",".join(imap(str,coordAdj))] = []
+                if weight == rank and not ("".join(imap(str,coordAdj)) in aCoordHash0):
+                    aCoordHash0["".join(imap(str,coordAdj))] = []
                     coordList1.append(coordAdj)
                     sizeTot += 1
                     sizeRank += 1
@@ -1687,7 +1698,7 @@ def exhB(instanceInit = 110100):
         microSecs = time.time()
         for coord in coordList1:
             value = f(coord)
-            solutionString = ",".join(imap(str,coord))+":"+str(value)
+            solutionString = "".join(imap(str,coord))+":"+str(value)
             if L <= 5:
                 if (rank,sizeRank) in hasseVertices:
                     hasseVertices[(rank,sizeRank)].append(solutionString)
@@ -1713,7 +1724,7 @@ def exhB(instanceInit = 110100):
 
     # find valueBest solutions
     valueMin = min(bestAry)
-    print "\nThere are {} valueBest = {} solutions for instanceInit={}:\nrank\tsolution".format(len(bestAry[valueMin]), valueMin, instanceInit)
+    print "\nThere are {} valueBest = {} solutions for instanceInit={}\nrank\tsolution".format(len(bestAry[valueMin]), valueMin, ''.join(imap(str,instanceInit)))
 
     for item in bestAry[valueMin]:
         item = item.split("_")
@@ -1724,7 +1735,7 @@ def exhB(instanceInit = 110100):
     # Output file stuff
     print "\n".join([
         "\n",
-        "instanceInit = {}, M = {} (rows), N = {} (columns)".format(instanceInit, M, N),
+        "instanceInit = {}, M = {} (rows), N = {} (columns)".format(''.join(imap(str,instanceInit)), M, N),
         "There are {} valueBest = {} solutions".format(len(bestAry[valueMin]),
             valueMin),
         "rankMax = {}".format(rankMax),

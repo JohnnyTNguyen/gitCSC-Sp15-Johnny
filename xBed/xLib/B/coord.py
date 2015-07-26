@@ -1,4 +1,13 @@
+from itertools import imap
+import time
+import sys
+import os
+import pwd
+import platform
 import random
+
+from math import log
+
 def neighborhood(coordPivot = [0, 1, 0, 1, 0, 1, 0]):
     thisCmd = "B.coord.neighborhood"
     ABOUT = "\n".join("This command {} takes a binary coordinate such as 0101010 (here of",
@@ -116,7 +125,7 @@ def rand(L = 41, weightFactor = None):
             coord.append(int(.5 + random.random()))
     return coord
 
-def rank(bstr = "0001101"):
+def rank(bstr = [0, 0, 0, 1, 1, 0, 1]):
     thisCmd = "B.coord.rank"
     ABOUT = """This proc takes a binary coordinate as a string such as '010101' and
         returns its weight number as the number of 'ones', which can also be
@@ -131,6 +140,116 @@ def rank(bstr = "0001101"):
 
     if bstr == "??":
         print ABOUT
+    return bstr.count(1)
+
+def string_vs_list(L = 32, Lpoints = 3, sampleSize = 1000, seedInit = 1215):
+    thisCmd = "B.coord.string_vs_list"
+    ABOUT = """
+        Example:  {}  L   Lpoints    sampleSize  seedInit
+                  {}  32  7          2000        1066
+        
+        The command {} implements an asympototic experiment to test
+        runtime costs of decoding binary coordinates represented either as a binary
+        string  or a binary list. There are 4 input parameters:
+        the length of a binary coordinate L,
+        the value of Lpoints (points in the asymptotic experiments)
+        the value of sampleSize, and
+        the value of seedInit.
+        
+        The experiment proceeds as follows:
+        (1) creates  a refererence coordinate list of alternating 0's and 1's.
+        (2) creates two coordinate samples as random permutations of coordRefList;
+        one sample as a list of binary strings; the other as a list of binary lists.
+        (3) decodes commponent values of each coordinate sample.
+        (4) measures the total runtime of the two decoding operations for each L.
+        """.format(thisCmd, thisCmd, thisCmd)
+    if L == "??":
+        print ABOUT
+        return
+    if L == "?":
+        print "Valid query is " + thisCmd + "(\"?\")"
         return
 
-    return bstr.count(1)
+    if L % 2:
+        print "\nERROR from " + thisCmd + ":\nthe value of L=" + str(L) + " is expected to be even!\n"
+
+    if seedInit == "":
+        # initialize the RNG  with a random seed
+        seedInit = 1e9 * random.random()
+        random.seed(seedInit)
+    elif isinstance(seedInit, int):
+        # initialize the RNG  with a user-selected seed
+        random.seed(seedInit)
+    else:
+        print "ERROR from " + thisCmd + ":\n.. only seedInit={} or seedInit=<int> are valid assignments, not -seedInit " + str(seedInit)
+    L_list = []
+    for points in range(1, Lpoints + 1):
+        L_list.append(L*pow(2, points - 1))
+
+    tableFile = thisCmd + "-" + str(sampleSize) + "-" + str(seedInit) + "-" + "asympTest.txt"
+
+    tableLines = """# file = {} (an R-compatible file of labeled columns
+# commandLine = {}({}, {}, {}, {})
+# invoked on {}
+# hostID = {}@{}-{}-{}
+# compiler = python-{}
+#
+# seedInit = {}
+# sampleSize = {}
+#
+#        	coordAsString\t\tcoordAsList
+# coordSize\truntimeString\t\truntimeList\t\truntimeRatio
+coordSize\truntimeString\t\truntimeList\t\truntimeRatio\n""".format(tableFile, thisCmd, L, Lpoints, sampleSize, seedInit, time.strftime("%a %b %d %H:%M:%S %Z %Y"), pwd.getpwuid(os.getuid())[0],
+            os.uname()[1], platform.system(), os.uname()[2], ".".join(imap(str,sys.version_info[:3])), seedInit, sampleSize)
+    for L in L_list:
+        coordRefList = []
+        for i in range(L):
+            if i % 2:
+                coordRefList.append(1)
+            else:
+                coordRefList.append(0)
+        #print str(L) + "/" + str(coordRefList)
+        runtimeList = 0.0
+        runtimeString = 0.0
+
+        for sample in range(1, sampleSize + 1):
+            random.shuffle(coordRefList) #NOTE: In comparison to tcl version, this line actually shuffles the list
+            coordString = ''.join(map(str, coordRefList))
+            rankList = 0
+            rankString = 0
+
+            microSecs = time.time()
+
+            for item in coordRefList:
+                if item:
+                    rankList += 1
+
+            runtimeList = runtimeList + (time.time() - microSecs)
+
+            microSecs = time.time()
+    
+            for i in range(L):
+                item = int(coordString[i])
+                if item:
+                    rankString += 1
+            
+            runtimeString = runtimeString + (time.time() - microSecs)
+
+
+            if rankList != rankString:
+                print "ERROR from " + thisCmd + ":\n.. rank mismatch:rankList=" + str(rankList) + ", rankString=" + str(rankString) + "\n"
+            runtimeRatio = runtimeString/runtimeList
+        tableLines += (str(L) + "\t\t" + format(runtimeString, ".18f") + "\t" + format(runtimeList, ".18f") + "\t" + format(runtimeRatio, ".18f") + "\n")
+    print "\n" + tableLines
+    file_write(tableFile, tableLines)
+    print ".. created file " + tableFile
+    return
+
+def file_write(fileName, data):
+    try:
+        f = file(fileName,'a')
+        f.write(data)
+        f.close()
+    except IOError as e:
+        sys.stderr.write("Error: {}\n".format(e.strerror))
+        sys.exit(1)

@@ -23,6 +23,7 @@ cntRestartLmt       2147483647          Stop if the solver reaches this value.
 cntStep             internal            Counts the number of pivot steps during the walk.
 commandLine         internal            Example: B.lightp.main ../xBenchm/lightp/i-6-a-0.txt  -seedInit 12
 commandName         internal            Example: B.lightp.main
+compiler            internal            Example formats: tcl-8.5.6, python-2.7.1, etc
 coordBest           internal            A follow-up coordinate on coordInit, associated with valueBest.
 coordInit           NA                  If NA, a random binary coordinate is generated internally as a binary string
 coordInit           NA                  of size nDim — unless the initial coordinate is entered by the user.
