@@ -10,15 +10,15 @@ from math import log
 
 def neighborhood(coordPivot = [0, 1, 0, 1, 0, 1, 0]):
     thisCmd = "B.coord.neighborhood"
-    ABOUT = "\n".join("This command {} takes a binary coordinate such as 0101010 (here of",
-                       "size L = 7) and returns a set of all ** adjacent coordinates **, i.e. the",
-                       "coordinates with the Hamming distance of 1 from the input coordinate.",
-                       "The size of this set is L.").format(thisCmd)
-                       
+    ABOUT = """
+Procedure {} takes a binary coordinate such as 0101010 (here of
+size L = 7) and returns a set of all ** adjacent coordinates **, i.e. the
+coordinates with the Hamming distance of 1 from the input coordinate.
+The size of this set is L.
+""".format(thisCmd)
     if coordPivot == "?":
         print("Valid query is '" + thisCmd + " ??'")
         return
-                           
     if coordPivot == "??":
         print ABOUT
         return
@@ -40,13 +40,13 @@ def neighborhood(coordPivot = [0, 1, 0, 1, 0, 1, 0]):
 
 def distance(bstrL = [0, 1, 0, 1], bstrR = [1, 0, 0, 1]):
     thisCmd = "B.coord.distance"
-    ABOUT = """This procedure takes two binary strings and returns
-        the value of the Hamming distance between the strings.
-        """
+    ABOUT = """
+Procedure {} takes two binary strings and returns
+the value of the Hamming distance between the strings.
+""".format(thisCmd)
     if bstrL == "?":
         print("Valid query is '" + thisCmd + " ??'")
         return
-
     if bstrL == "??":
         print ABOUT
         return
@@ -65,15 +65,14 @@ def distance(bstrL = [0, 1, 0, 1], bstrR = [1, 0, 0, 1]):
 
 def from_int(val = 31, maxBits = 5):
     thisCmd = "B.coord.from_int"
-    ABOUT = """This procedure takes an integer and the length of the binary string that
-        can represent this integer and returns a binary string that actually
-        represents this integer.
-        """
-    
+    ABOUT = """
+This procedure takes an integer and the length of the binary string that
+can represent this integer and returns a binary string that actually
+represents this integer.
+""".format(thisCmd)
     if val == "?":
         print("Valid query is '" + thisCmd + " ??'")
         return
-
     if val == "??":
         print ABOUT
         return
@@ -104,17 +103,16 @@ def from_int(val = 31, maxBits = 5):
 
 def rand(L = 41, weightFactor = None):
     thisCmd = "B.coord.rand"
-    ABOUT = """This proc takes an integer L, and optionally a weightFactor > 0 and <= 1.
-        By default, weightFactor = NA, and an unbiased binary coordinate of length L
-        is returned. For weightFactor=0.5, a biased random coordinate of length L
-        is returned: it will have  a random distribution of exactly L/2 'ones'
-        for L even and (L+1)/2 'ones' for L odd.
-        """
-    
+    ABOUT = """
+This proc takes an integer L, and optionally a weightFactor > 0 and <= 1.
+By default, weightFactor = NA, and an unbiased binary coordinate of length L
+is returned. For weightFactor=0.5, a biased random coordinate of length L
+is returned: it will have  a random distribution of exactly L/2 'ones'
+for L even and (L+1)/2 'ones' for L odd.
+""".format(thisCmd)
     if L == "?":
         print("Valid query is '" + thisCmd + " ??'")
         return
-
     if L == "??":
         print ABOUT
         return
@@ -127,42 +125,58 @@ def rand(L = 41, weightFactor = None):
 
 def rank(bstr = [0, 0, 0, 1, 1, 0, 1]):
     thisCmd = "B.coord.rank"
-    ABOUT = """This proc takes a binary coordinate as a string such as '010101' and
-        returns its weight number as the number of 'ones', which can also be
-        interpreted as the distance from '000000' or as 'the rank' of the
-        coordinate in the Hasse graph with respect to its 'bottom' coordinate
-        of all 'zeros'.
-        """
-    
+    ABOUT = """
+This proc takes a binary coordinate as a string such as '010101' and
+returns its weight number as the number of 'ones', which can also be
+interpreted as the distance from '000000' or as 'the rank' of the
+coordinate in the Hasse graph with respect to its 'bottom' coordinate
+of all 'zeros'.
+""".format(thisCmd)
     if bstr == "?":
         print("Valid query is '" + thisCmd + " ??'")
         return
-
     if bstr == "??":
         print ABOUT
     return bstr.count(1)
 
+def string_to_list(coord = "1000"):
+    thisCmd = "B.coord.string_to_list"
+    ABOUT = """
+This proc converts an input string such as '010101' and
+returns its list form [0, 1, 0, 1, 0, 1]. If it's not an input string like above,
+it will return the same object.
+""".format(thisCmd)
+    if bstr == "?":
+        print("Valid query is '" + thisCmd + " ??'")
+        return
+    if bstr == "??":
+        print ABOUT
+
+    if isinstance(coord, basestring):
+        coord = map(int, coord)
+    return coord
+
 def string_vs_list(L = 32, Lpoints = 3, sampleSize = 1000, seedInit = 1215):
     thisCmd = "B.coord.string_vs_list"
     ABOUT = """
-        Example:  {}  L   Lpoints    sampleSize  seedInit
-                  {}  32  7          2000        1066
+Example:  {}  L   Lpoints    sampleSize  seedInit
+          {}  32  7          2000        1066
         
-        The command {} implements an asympototic experiment to test
-        runtime costs of decoding binary coordinates represented either as a binary
-        string  or a binary list. There are 4 input parameters:
-        the length of a binary coordinate L,
-        the value of Lpoints (points in the asymptotic experiments)
-        the value of sampleSize, and
-        the value of seedInit.
+The command {} implements an asympototic experiment to test
+runtime costs of decoding binary coordinates represented either as a binary
+string  or a binary list. There are 4 input parameters:
+the length of a binary coordinate L,
+the value of Lpoints (points in the asymptotic experiments)
+the value of sampleSize, and
+the value of seedInit.
         
-        The experiment proceeds as follows:
-        (1) creates  a refererence coordinate list of alternating 0's and 1's.
-        (2) creates two coordinate samples as random permutations of coordRefList;
-        one sample as a list of binary strings; the other as a list of binary lists.
-        (3) decodes commponent values of each coordinate sample.
-        (4) measures the total runtime of the two decoding operations for each L.
-        """.format(thisCmd, thisCmd, thisCmd)
+The experiment proceeds as follows:
+(1) creates  a refererence coordinate list of alternating 0's and 1's.
+(2) creates two coordinate samples as random permutations of coordRefList;
+one sample as a list of binary strings; the other as a list of binary lists.
+(3) decodes commponent values of each coordinate sample.
+(4) measures the total runtime of the two decoding operations for each L.
+""".format(thisCmd, thisCmd, thisCmd)
     if L == "??":
         print ABOUT
         return
@@ -188,7 +202,8 @@ def string_vs_list(L = 32, Lpoints = 3, sampleSize = 1000, seedInit = 1215):
 
     tableFile = thisCmd + "-" + str(sampleSize) + "-" + str(seedInit) + "-" + "asympTest.txt"
 
-    tableLines = """# file = {} (an R-compatible file of labeled columns
+    tableLines = """
+# file = {} (an R-compatible file of labeled columns
 # commandLine = {}({}, {}, {}, {})
 # invoked on {}
 # hostID = {}@{}-{}-{}
@@ -199,7 +214,8 @@ def string_vs_list(L = 32, Lpoints = 3, sampleSize = 1000, seedInit = 1215):
 #
 #        	coordAsString\t\tcoordAsList
 # coordSize\truntimeString\t\truntimeList\t\truntimeRatio
-coordSize\truntimeString\t\truntimeList\t\truntimeRatio\n""".format(tableFile, thisCmd, L, Lpoints, sampleSize, seedInit, time.strftime("%a %b %d %H:%M:%S %Z %Y"), pwd.getpwuid(os.getuid())[0],
+coordSize\truntimeString\t\truntimeList\t\truntimeRatio
+""".format(tableFile, thisCmd, L, Lpoints, sampleSize, seedInit, time.strftime("%a %b %d %H:%M:%S %Z %Y"), pwd.getpwuid(os.getuid())[0],
             os.uname()[1], platform.system(), os.uname()[2], ".".join(imap(str,sys.version_info[:3])), seedInit, sampleSize)
     for L in L_list:
         coordRefList = []

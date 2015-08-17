@@ -1,6 +1,6 @@
 import pprint
 
-def table_info_variables( fileName="../../../xBed/xLib/util_data/B.lightp.info_variables.txt" ):
+def table_info_variables( fileName="../../../xBed/pLib/util_data/B.lightp.info_variables.txt" ):
     ABOUT = (
         "This proc takes a file *info_variables.txt and returns two "
         "dictionaries: all_info and all_valu. Both are indexed with the same "
@@ -11,7 +11,7 @@ def table_info_variables( fileName="../../../xBed/xLib/util_data/B.lightp.info_
         "procedure *init"
         )
 
-    thisProc = "table.info_variables"
+    thisProc = "table_info_variables"
 
     rList = []
     with open(fileName) as f:
@@ -37,8 +37,25 @@ def table_info_variables( fileName="../../../xBed/xLib/util_data/B.lightp.info_
     return (all_info, all_valu)
 
 def prettyPrint(object):
+    ABOUT = (
+             "This proc pretty prints a dictionary."
+             )
+        
+    thisProc = "prettyPrint"
+             
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(object)
+
+def customPrint(front = "", middle = "", dict = {}):
+    ABOUT = (
+             "This proc custom prints a dictionary with a given front, middle, and dictionary"
+             "Ex. customPrint(\"Key \", \" = \", dictionary)"
+             )
+        
+    thisProc = "customPrint"
+    
+    for key in sorted(dict):
+        print front + str(key) + middle, dict[key]
 
 if __name__ == "__main__":
     table_info_variables("B.lightp.info_variables.txt")

@@ -4,7 +4,7 @@ import time
 from subprocess import call
 
 def whoami():
-    print call("whoami")[0]
+    print call("whoami")
 
 def date():
     print time.strftime("%c")

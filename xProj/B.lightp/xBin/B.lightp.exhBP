@@ -8,7 +8,7 @@ thisVersion = 20150529
 currDir = os.path.dirname(os.path.realpath(__file__))
 thisDir = currDir 
 
-execfile(os.path.dirname(currDir) + "/xLib/all_python.py")
+execfile(os.path.dirname(currDir) + "/pLib/all_python.py")
 
 thisScript = os.path.basename(__file__)
 def B_lightp_exhBT_Main(argv = sys.argv[1:], argc = len(sys.argv[1:])):
