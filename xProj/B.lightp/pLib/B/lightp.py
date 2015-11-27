@@ -856,7 +856,7 @@ of length L, there are up to L explicit probes of the function B.lightp.f
                 if valueAdj < valueBest:
                     coordBestList = []
                 valueBest = valueAdj
-                coordBest = coordAdj[:]
+                coordBest = coordAdj
                 coordBestList.append(coordBest)
             if aV['writeVar'] == 3:
                 distance = B.coord.distance(coordAdj, coordPiv)
@@ -1718,7 +1718,7 @@ For a stdout query, use one of these these commands:
         hasseVertices = {(0,1): ["".join(imap(str,coordRef)) + ":" + str(value)] }
 
     sizeRank = 0
-
+    rangeL = xrange(L)
     # at each rank, generate all unique coordinates and probe for function values
     for rank in xrange(1, rankMax+1):
 
@@ -1727,7 +1727,7 @@ For a stdout query, use one of these these commands:
         microSecs = time.time()
         #pprint(coordList0)
         for coord in coordList0:
-            for k in xrange(L):
+            for k in rangeL:
                 bit = coord[k]
                 coordAdj = coord[:]
                 if bit:
