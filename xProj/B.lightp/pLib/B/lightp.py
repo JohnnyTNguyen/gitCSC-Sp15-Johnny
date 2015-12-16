@@ -793,8 +793,8 @@ of length L, there are up to L explicit probes of the function B.lightp.f
         print "Valid query is '{} ??'".format(thisCmd)
         return
 
-    if isinstance(coordPiv, basestring):
-        coordPiv = map(int, coordPiv)
+    #if isinstance(coordPiv, basestring):
+    #       coordPiv = map(int, coordPiv)
 
     #info global variables
     global all_info
@@ -892,8 +892,8 @@ A neighborhood size of 0 signifies that the procedure is returning a
         print "Valid query is '{} ??'".format(thisCmd)
         return
 
-    if isinstance(coordPiv, basestring):
-        coordPiv = map(int, coordPiv)
+    #if isinstance(coordPiv, basestring):
+    #       coordPiv = map(int, coordPiv)
 
     # info global variables
     global all_info
@@ -1371,8 +1371,8 @@ value, given this coordinate.
         print "Valid query is '{} ??'".format(thisCmd)
         return
     
-    if isinstance(coord, basestring):
-        coord = map(int, coord)
+    #if isinstance(coord, basestring):
+    #   coord = map(int, coord)
     
     fVal = 0
     isTestOnly = 0
@@ -1453,8 +1453,8 @@ the self-avoiding walk.
         print "Valid query is '{} ??'".format(thisCmd)
         return
 
-    if isinstance(coordPiv, basestring):
-        coordPiv = map(int, coordPiv)
+    #if isinstance(coordPiv, basestring):
+    #       coordPiv = map(int, coordPiv)
 
     # info global variables
     global all_info
@@ -1513,7 +1513,7 @@ the self-avoiding walk.
                 mAdj[i][j] = (mTot[i][j] + aStruc[i][j][k]) % 2
                 valueAdj = valueAdj + mAdj[i][j]
         aCoordAdj[tuple(coordAdj)] = valueAdj
-        if not aValueAdj.has_key(valueAdj):
+        if not valueAdj in aValueAdj:
             aValueAdj[valueAdj] = []
     
         aValueAdj[valueAdj].append(coordAdj)
