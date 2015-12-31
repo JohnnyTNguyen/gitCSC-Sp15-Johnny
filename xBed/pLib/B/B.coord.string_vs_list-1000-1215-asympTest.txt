@@ -1,0 +1,16 @@
+
+# file = B.coord.string_vs_list-1000-1215-asympTest.txt (an R-compatible file of labeled columns
+# commandLine = B.coord.string_vs_list(32, 3, 1000, 1215)
+# invoked on Wed Dec 30 14:32:28 EST 2015
+# hostID = johnnynguyen@Johnnys-MacBook-Pro.local-Darwin-15.2.0
+# compiler = python-2.7.10
+#
+# seedInit = 1215
+# sampleSize = 1000
+#
+#        	coordAsString		coordAsList
+# coordSize	runtimeString		runtimeList		runtimeRatio
+coordSize	runtimeString		runtimeList		runtimeRatio
+32		0.021071195602416992	0.001441717147827148	14.615346452786505793
+64		0.041298866271972656	0.002640724182128906	15.639219934994583738
+128		0.078682184219360352	0.004820585250854492	16.322122755823730955

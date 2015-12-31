@@ -261,6 +261,35 @@ coordSize\truntimeString\t\truntimeList\t\truntimeRatio
     print ".. created file " + tableFile
     return
 
+def binary_sorted_scale_test(minL = 5, maxL = 40, incr = 5):
+    print "L\tsortTime"
+    
+    #loop from minL to maxL incremented by incr
+    for i in range(minL, maxL + 1, incr):
+        #create list of length L with binary coords of length L
+        list = []
+        for j in range(i):
+            l = [0]*i
+            l[j] = 1
+            list.append(l)
+
+        #shuffle the list
+        random.shuffle(list)
+        
+        #print "Shuffled: " + str(list)
+    
+        #time the sort function
+        t = 0.0
+        microSecs = time.time()
+        list = sorted(list)
+        t = time.time() - microSecs
+
+        #print "Sorted: " + str(list)
+
+        print str(i) + "\t" + str(t)
+
+    return
+
 def file_write(fileName, data):
     try:
         f = file(fileName,'a')

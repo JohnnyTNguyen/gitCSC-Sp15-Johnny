@@ -919,13 +919,20 @@ A neighborhood size of 0 signifies that the procedure is returning a
     rList = fAdj(coordPiv)
     valuePiv = rList[0]
     aValueAdj = rList[1]
+    
+    #print aValueAdj
+    
     if aV["writeVar"] == 3:
         print "pivotPair = {}:{}".format(coordPiv, valuePiv)
         print aValueAdj
         print aCoordHash0
     
     valueOrderedList = sorted(aValueAdj.keys())
-    
+
+    #for i in valueOrderedList:
+    #       print str(i);
+    #   print "----"
+
     isBestFound = False
     neighbSize = aV["neighbSize"]
     for value in valueOrderedList:
@@ -1376,7 +1383,7 @@ value, given this coordinate.
     
     fVal = 0
     isTestOnly = 0
-    if aV.has_key('valueTarget') and aV['valueTarget'] == -1:
+    if 'valueTarget' in aV and aV['valueTarget'] == -1:
         return fVal
     
     #if isTestOnly:
@@ -1496,6 +1503,9 @@ the self-avoiding walk.
             valuePiv = valuePiv + mTot[i][j]
     aV["cntProbe"] += 1
     
+    # PASS 2: given aStruc[i][j][k] and mTot[i][j],
+    #         get all coordAdj and valueAdj
+    
     aCoordAdj = {}
     aValueAdj = {}
     
@@ -1513,11 +1523,11 @@ the self-avoiding walk.
                 mAdj[i][j] = (mTot[i][j] + aStruc[i][j][k]) % 2
                 valueAdj = valueAdj + mAdj[i][j]
         aCoordAdj[tuple(coordAdj)] = valueAdj
-        if not valueAdj in aValueAdj:
+        if valueAdj not in aValueAdj:
             aValueAdj[valueAdj] = []
     
         aValueAdj[valueAdj].append(coordAdj)
-    
+
     aV["cntProbe"] += 1
     if aV["writeVar"] == 3:
         print( "FROM: {}"
@@ -1604,7 +1614,7 @@ a walk terminated due to a 'trapped pivot'.""".format(thisCmd, thisCmd, thisCmd,
     for coord in coordList:
         value = f(coord)
         rank = B.coord.rank(coord)
-        if not hasseAry.has_key(rank):
+        if rank not in hasseAry:
             hasseAry[rank] = []
         hasseAry[rank].append(str(coord) + ":" + str(int(value)))
 
@@ -1636,7 +1646,7 @@ a walk terminated due to a 'trapped pivot'.""".format(thisCmd, thisCmd, thisCmd,
     print("\nvalueBest = " + str(valueMin))
 
     for rank in hasseAry:
-        if bestAry.has_key(rank):
+        if rank in bestAry:
             print("solutionBest(rank=" + str(rank) + ") = " + str(bestAry[rank]))
             #print(str(rank) + "\t" + str(width) + "\t" + str(hasseAry[rank]))
     
@@ -1758,7 +1768,7 @@ For a stdout query, use one of these these commands:
                     hasseVertices[(rank,sizeRank)] = [solutionString]
             if value < valueBest:
                 coordString = "{:03}_".format(rank)+solutionString
-                if bestAry.has_key(value):
+                if value in bestAry:
                     bestAry[value].append(coordString)
                 else:
                     bestAry[value] = [coordString]
